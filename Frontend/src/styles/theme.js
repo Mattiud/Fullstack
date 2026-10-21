@@ -1,0 +1,28 @@
+// Paleta y tipografía de los mockups de Claude Design (docs/mockups).
+export const theme = {
+  colores: {
+    primario: '#b8496f',
+    primarioOscuro: '#9e3b60',
+    enlace: '#a13c63',
+    fondo: '#ffffff',
+    lateral: '#fdf1f5',
+    lateralActivo: '#f8dde8',
+    superficie: '#ffffff',
+    superficieSuave: '#fbfbfa',
+    texto: '#2b2328',
+    textoSuave: '#666666',
+    borde: '#9a9a9a',
+    bordeSuave: '#d2d2d2',
+    bordeTarjeta: '#e8c7d4',
+    error: '#a33333',
+    errorBorde: '#cc9999',
+    errorFondo: '#fdf5f5',
+    exito: '#05603a',
+    exitoFondo: '#ecfdf3',
+    deshabilitado: '#8a8a8a',
+  },
+  radio: '5px',
+  sombra: '0 1px 3px rgba(0, 0, 0, 0.06)',
+  fuente: "-apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif",
+  movil: '768px',
+};
