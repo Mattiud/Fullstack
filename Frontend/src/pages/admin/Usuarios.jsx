@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../../context/useAuth';
+import { useNotificaciones } from '../../context/useNotificaciones';
 import { listarUsuarios } from '../../api/users';
 import { mensajeDeError } from '../../api/client';
 import { PERMISOS } from '../../constants/auth';
@@ -53,7 +54,7 @@ export default function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
-  const [aviso, setAviso] = useState('');
+  const { notificar } = useNotificaciones();
   const [busqueda, setBusqueda] = useState('');
   const [creando, setCreando] = useState(false);
   // Se incrementa tras cada cambio para refrescar el registro de accesos.
@@ -77,7 +78,10 @@ export default function Usuarios() {
 
   function handleCreado(usuario) {
     setUsuarios((anteriores) => ordenarPorNombre([...anteriores, usuario]));
-    setAviso(`Se registró la cuenta de ${usuario.nombre}.`);
+    notificar({
+      tipo: 'exito',
+      mensaje: `Se registró la cuenta de ${usuario.nombre}.`,
+    });
     setCreando(false);
     setVersionRegistro((version) => version + 1);
   }
@@ -112,11 +116,6 @@ export default function Usuarios() {
         </Boton>
       </EncabezadoPagina>
       <CuerpoPagina>
-        {aviso && (
-          <Alerta $tipo="exito" role="status">
-            {aviso}
-          </Alerta>
-        )}
         {creando && (
           <FormularioNuevoUsuario
             onCreado={handleCreado}
@@ -148,7 +147,6 @@ export default function Usuarios() {
                     usuario={usuario}
                     esPropio={usuario._id === usuarioActual._id}
                     onActualizado={handleActualizado}
-                    onAviso={setAviso}
                   />
                 ))}
               </tbody>

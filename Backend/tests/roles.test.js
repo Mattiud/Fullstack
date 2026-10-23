@@ -9,6 +9,8 @@ const MATRIZ = [
   ['Ver historial de cambios', PERMISSIONS.HISTORIAL_LEER, true, true],
   ['Consultar el registro de auditoría', PERMISSIONS.AUDITORIA_LEER, true, false],
   ['Acceder a expedientes no asignados', PERMISSIONS.EXPEDIENTES_TODOS, true, false],
+  ['Registrar y editar menores', PERMISSIONS.EXPEDIENTES_ESCRIBIR, false, true],
+  ['Asignar profesionales a un menor', PERMISSIONS.EXPEDIENTES_ASIGNAR, true, false],
 ];
 
 describe('Matriz de permisos por rol', () => {

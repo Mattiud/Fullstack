@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import App from './App';
+import { RouterProvider, createMemoryRouter } from 'react-router-dom';
+import { rutas } from './routes';
 
 // Datos ficticios para las pruebas.
 export const usuarioAdmin = {
@@ -16,6 +16,7 @@ export const usuarioAdmin = {
     'auditoria:leer',
     'expedientes:leer',
     'expedientes:todos',
+    'expedientes:asignar',
     'historial:leer',
   ],
 };
@@ -43,9 +44,6 @@ export function errorHttp(status, data) {
 }
 
 export function renderApp(ruta = '/') {
-  return render(
-    <MemoryRouter initialEntries={[ruta]}>
-      <App />
-    </MemoryRouter>
-  );
+  const router = createMemoryRouter(rutas, { initialEntries: [ruta] });
+  return { router, ...render(<RouterProvider router={router} />) };
 }

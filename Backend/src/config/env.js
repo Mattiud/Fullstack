@@ -21,6 +21,17 @@ const clientOrigin = isProduction
   ? requireEnv('CLIENT_ORIGIN')
   : process.env.CLIENT_ORIGIN || 'http://localhost:5173';
 
+// Clave AES-256 para cifrar los documentos adjuntos: 32 bytes en hexadecimal.
+const documentosKeyHex = requireEnv('DOCUMENTOS_KEY');
+if (!/^[0-9a-fA-F]{64}$/.test(documentosKeyHex)) {
+  throw new Error('DOCUMENTOS_KEY debe tener 64 caracteres hexadecimales (32 bytes)');
+}
+
+const documentosMaxMb = Number(process.env.DOCUMENTOS_MAX_MB ?? 10);
+if (!Number.isFinite(documentosMaxMb) || documentosMaxMb <= 0 || documentosMaxMb > 25) {
+  throw new Error('DOCUMENTOS_MAX_MB debe ser un número entre 1 y 25');
+}
+
 const SESSION_DURATION_MS = 8 * 60 * 60 * 1000;
 
 module.exports = {
@@ -34,6 +45,8 @@ module.exports = {
   clientOrigin,
   // Número de proxies delante del servidor (Render), necesario para obtener la IP real.
   trustProxy: Number(process.env.TRUST_PROXY ?? (isProduction ? 1 : 0)),
+  documentosKey: Buffer.from(documentosKeyHex, 'hex'),
+  documentosMaxBytes: Math.round(documentosMaxMb * 1024 * 1024),
   // Costo reducido solo en pruebas para no ralentizarlas.
   bcryptRounds: NODE_ENV === 'test' ? 4 : 12,
 };

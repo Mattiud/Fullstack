@@ -14,8 +14,12 @@ const GlobalStyle = createGlobalStyle`
     line-height: 1.4;
   }
 
-  button, input, select {
+  button, input, select, textarea {
     font: inherit;
+  }
+
+  textarea {
+    resize: vertical;
   }
 
   a {

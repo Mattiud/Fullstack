@@ -6,6 +6,7 @@ export const PERMISOS = {
   EXPEDIENTES_LEER: 'expedientes:leer',
   EXPEDIENTES_TODOS: 'expedientes:todos',
   EXPEDIENTES_ESCRIBIR: 'expedientes:escribir',
+  EXPEDIENTES_ASIGNAR: 'expedientes:asignar',
   DIAGNOSTICOS_EDITAR: 'diagnosticos:editar',
   INFORMES_EMITIR: 'informes:emitir',
   HISTORIAL_LEER: 'historial:leer',
@@ -27,6 +28,7 @@ export const PERMISOS_POR_ROL = {
     PERMISOS.AUDITORIA_LEER,
     PERMISOS.EXPEDIENTES_LEER,
     PERMISOS.EXPEDIENTES_TODOS,
+    PERMISOS.EXPEDIENTES_ASIGNAR,
     PERMISOS.HISTORIAL_LEER,
   ],
   [ROLES.PSICOPEDAGOGO]: [

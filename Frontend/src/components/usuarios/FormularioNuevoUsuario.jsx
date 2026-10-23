@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { crearUsuario } from '../../api/users';
 import { erroresDeCampos, mensajeDeError } from '../../api/client';
 import { NOMBRES_ROLES, ROLES } from '../../constants/auth';
+import { useNotificaciones } from '../../context/useNotificaciones';
 import {
   soloErrores,
   validarEmail,
@@ -11,7 +12,6 @@ import {
 } from '../../utils/validacion';
 import CampoFormulario from '../CampoFormulario';
 import {
-  Alerta,
   Boton,
   Campo,
   CuerpoPanel,
@@ -47,7 +47,7 @@ export default function FormularioNuevoUsuario({ onCreado, onCancelar }) {
   const id = useId();
   const [valores, setValores] = useState(VALORES_INICIALES);
   const [errores, setErrores] = useState({});
-  const [errorGeneral, setErrorGeneral] = useState('');
+  const { notificar } = useNotificaciones();
   const [enviando, setEnviando] = useState(false);
 
   function handleChange(evento) {
@@ -64,8 +64,13 @@ export default function FormularioNuevoUsuario({ onCreado, onCancelar }) {
       password: validarPassword(valores.password),
     });
     setErrores(nuevosErrores);
-    setErrorGeneral('');
-    if (Object.keys(nuevosErrores).length > 0) return;
+    if (Object.keys(nuevosErrores).length > 0) {
+      notificar({
+        tipo: 'advertencia',
+        mensaje: 'Revise los campos marcados antes de guardar.',
+      });
+      return;
+    }
 
     setEnviando(true);
     try {
@@ -78,7 +83,10 @@ export default function FormularioNuevoUsuario({ onCreado, onCancelar }) {
       onCreado(usuario);
     } catch (error) {
       setErrores(erroresDeCampos(error));
-      setErrorGeneral(mensajeDeError(error, 'No se pudo crear el usuario'));
+      notificar({
+        tipo: 'error',
+        mensaje: mensajeDeError(error, 'No fue posible crear el usuario'),
+      });
       setEnviando(false);
     }
   }
@@ -100,7 +108,7 @@ export default function FormularioNuevoUsuario({ onCreado, onCancelar }) {
               error={errores.nombre}
             />
             <CampoFormulario
-              etiqueta="Correo institucional"
+              etiqueta="Correo electrónico"
               name="email"
               type="email"
               autoComplete="off"
@@ -137,12 +145,6 @@ export default function FormularioNuevoUsuario({ onCreado, onCancelar }) {
               ayuda="El usuario deberá cambiarla al iniciar sesión."
             />
           </Columnas>
-          {errorGeneral && (
-            <Alerta role="alert">
-              <span aria-hidden="true">✕ </span>
-              {errorGeneral}
-            </Alerta>
-          )}
           <Botones>
             <Boton type="button" $variante="secundario" onClick={onCancelar}>
               Cancelar

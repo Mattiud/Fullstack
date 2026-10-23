@@ -121,7 +121,7 @@ export default function Login() {
         <TituloLogin>Iniciar sesión</TituloLogin>
         <Formulario onSubmit={handleSubmit} noValidate>
           <CampoFormulario
-            etiqueta="Correo institucional"
+            etiqueta="Correo electrónico"
             name="email"
             type="email"
             autoComplete="username"

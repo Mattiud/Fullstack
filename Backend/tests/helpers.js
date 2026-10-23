@@ -21,7 +21,8 @@ function usarBaseDeDatosDePrueba() {
     await User.init();
   });
   afterEach(async () => {
-    for (const collection of Object.values(mongoose.connection.collections)) {
+    // Incluye las colecciones de GridFS, que no pertenecen a ningún modelo.
+    for (const collection of await mongoose.connection.db.collections()) {
       await collection.deleteMany({});
     }
   });

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { actualizarUsuario, asignarPasswordTemporal } from '../../api/users';
 import { mensajeDeError } from '../../api/client';
 import { NOMBRES_ROLES } from '../../constants/auth';
+import { useNotificaciones } from '../../context/useNotificaciones';
 import { formatearFecha } from '../../utils/formato';
 import { validarNombre, validarPassword } from '../../utils/validacion';
 import {
@@ -48,12 +49,8 @@ const Botones = styled.div`
   gap: 8px;
 `;
 
-export default function FilaUsuario({
-  usuario,
-  esPropio,
-  onActualizado,
-  onAviso,
-}) {
+export default function FilaUsuario({ usuario, esPropio, onActualizado }) {
+  const { notificar, confirmar } = useNotificaciones();
   const [editando, setEditando] = useState(false);
   const [valores, setValores] = useState({
     nombre: usuario.nombre,
@@ -69,10 +66,13 @@ export default function FilaUsuario({
     try {
       const actualizado = await accion();
       onActualizado(actualizado);
-      onAviso(aviso);
+      notificar({ tipo: 'exito', mensaje: aviso });
       return true;
     } catch (err) {
-      setError(mensajeDeError(err, 'No se pudo guardar el cambio'));
+      notificar({
+        tipo: 'error',
+        mensaje: mensajeDeError(err, 'No fue posible guardar los cambios'),
+      });
       return false;
     } finally {
       setGuardando(false);
@@ -86,17 +86,34 @@ export default function FilaUsuario({
     setEditando(true);
   }
 
-  function handleEstado() {
-    const activo = !usuario.activo;
-    if (
-      !activo &&
-      !window.confirm(`¿Desactivar la cuenta de ${usuario.nombre}?`)
-    )
+  async function handleEstado() {
+    if (!usuario.activo) {
+      guardar(
+        () => actualizarUsuario(usuario._id, { activo: true }),
+        `Se activó la cuenta de ${usuario.nombre}.`
+      );
       return;
-    guardar(
-      () => actualizarUsuario(usuario._id, { activo }),
-      `Se ${activo ? 'activó' : 'desactivó'} la cuenta de ${usuario.nombre}.`
-    );
+    }
+    try {
+      const actualizado = await confirmar({
+        titulo: 'Desactivar cuenta',
+        mensaje: `${usuario.nombre} no podrá iniciar sesión hasta que su cuenta se vuelva a activar.`,
+        textoConfirmar: 'Desactivar',
+        textoProcesando: 'Desactivando…',
+        accion: () => actualizarUsuario(usuario._id, { activo: false }),
+      });
+      if (!actualizado) return;
+      onActualizado(actualizado);
+      notificar({
+        tipo: 'exito',
+        mensaje: `Se desactivó la cuenta de ${usuario.nombre}.`,
+      });
+    } catch (err) {
+      notificar({
+        tipo: 'error',
+        mensaje: mensajeDeError(err, 'No fue posible desactivar la cuenta'),
+      });
+    }
   }
 
   async function handleGuardarEdicion(evento) {

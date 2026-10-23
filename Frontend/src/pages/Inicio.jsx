@@ -14,8 +14,8 @@ export default function Inicio() {
         <Tarjeta>
           <Subtitulo>Hola, {usuario.nombre}</Subtitulo>
           <TextoAyuda as="p">
-            Los módulos de perfiles, diagnósticos, sesiones e informes se
-            incorporarán en las siguientes etapas del proyecto.
+            Los módulos de diagnósticos, sesiones e informes se incorporarán en
+            las siguientes etapas del proyecto.
           </TextoAyuda>
         </Tarjeta>
       </CuerpoPagina>

@@ -11,7 +11,10 @@ const PERMISSIONS = Object.freeze({
   EXPEDIENTES_LEER: 'expedientes:leer',
   // Acceso a todos los expedientes, sin necesidad de estar asignado al menor.
   EXPEDIENTES_TODOS: 'expedientes:todos',
+  // Registrar menores, editar sus fichas y gestionar sus documentos.
   EXPEDIENTES_ESCRIBIR: 'expedientes:escribir',
+  // Asignar o quitar los profesionales responsables de cada menor.
+  EXPEDIENTES_ASIGNAR: 'expedientes:asignar',
   DIAGNOSTICOS_EDITAR: 'diagnosticos:editar',
   INFORMES_EMITIR: 'informes:emitir',
   // Historial de cambios de los expedientes a los que se tiene acceso.
@@ -26,6 +29,7 @@ const ROLE_PERMISSIONS = Object.freeze({
     PERMISSIONS.AUDITORIA_LEER,
     PERMISSIONS.EXPEDIENTES_LEER,
     PERMISSIONS.EXPEDIENTES_TODOS,
+    PERMISSIONS.EXPEDIENTES_ASIGNAR,
     PERMISSIONS.HISTORIAL_LEER,
   ]),
   [ROLES.PSICOPEDAGOGO]: Object.freeze([

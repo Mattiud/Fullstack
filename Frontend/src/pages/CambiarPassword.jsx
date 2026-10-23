@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../context/useAuth';
+import { useNotificaciones } from '../context/useNotificaciones';
 import { cambiarPassword } from '../api/auth';
 import { erroresDeCampos, mensajeDeError } from '../api/client';
 import { soloErrores, validarPassword } from '../utils/validacion';
@@ -25,7 +26,7 @@ export default function CambiarPassword() {
   const navigate = useNavigate();
   const [valores, setValores] = useState(VALORES_INICIALES);
   const [errores, setErrores] = useState({});
-  const [errorGeneral, setErrorGeneral] = useState('');
+  const { notificar } = useNotificaciones();
   const [enviando, setEnviando] = useState(false);
 
   function handleChange(evento) {
@@ -50,8 +51,13 @@ export default function CambiarPassword() {
           : 'Las contraseñas no coinciden',
     });
     setErrores(nuevosErrores);
-    setErrorGeneral('');
-    if (Object.keys(nuevosErrores).length > 0) return;
+    if (Object.keys(nuevosErrores).length > 0) {
+      notificar({
+        tipo: 'advertencia',
+        mensaje: 'Revise los campos marcados antes de guardar.',
+      });
+      return;
+    }
 
     setEnviando(true);
     try {
@@ -60,12 +66,17 @@ export default function CambiarPassword() {
         valores.passwordNueva
       );
       actualizarSesion(usuarioActualizado);
+      notificar({
+        tipo: 'exito',
+        mensaje: 'Contraseña actualizada correctamente',
+      });
       navigate('/', { replace: true });
     } catch (error) {
       setErrores(erroresDeCampos(error));
-      setErrorGeneral(
-        mensajeDeError(error, 'No se pudo cambiar la contraseña')
-      );
+      notificar({
+        tipo: 'error',
+        mensaje: mensajeDeError(error, 'No fue posible cambiar la contraseña'),
+      });
       setEnviando(false);
     }
   }
@@ -82,7 +93,6 @@ export default function CambiarPassword() {
                 para continuar.
               </Alerta>
             )}
-            {errorGeneral && <Alerta role="alert">{errorGeneral}</Alerta>}
             <CampoFormulario
               etiqueta="Contraseña actual"
               name="passwordActual"

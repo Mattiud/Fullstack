@@ -37,7 +37,7 @@ describe('Inicio de sesión', () => {
     expect(screen.getByText('Ingrese la contraseña')).toBeInTheDocument();
 
     await user.type(
-      screen.getByLabelText('Correo institucional'),
+      screen.getByLabelText('Correo electrónico'),
       'correo-invalido'
     );
     await user.click(screen.getByRole('button', { name: 'Ingresar' }));
@@ -53,7 +53,7 @@ describe('Inicio de sesión', () => {
     renderApp('/login');
 
     await user.type(
-      await screen.findByLabelText('Correo institucional'),
+      await screen.findByLabelText('Correo electrónico'),
       'admin@prueba.cl'
     );
     await user.type(screen.getByLabelText('Contraseña'), 'ClaveIncorrecta1');
@@ -98,7 +98,7 @@ describe('Inicio de sesión', () => {
     renderApp('/login');
 
     await user.type(
-      await screen.findByLabelText('Correo institucional'),
+      await screen.findByLabelText('Correo electrónico'),
       'admin@prueba.cl'
     );
     await user.type(screen.getByLabelText('Contraseña'), 'ClavePrueba123');
@@ -115,7 +115,7 @@ describe('Inicio de sesión', () => {
     renderApp('/usuarios');
 
     await user.type(
-      await screen.findByLabelText('Correo institucional'),
+      await screen.findByLabelText('Correo electrónico'),
       'admin@prueba.cl'
     );
     await user.type(screen.getByLabelText('Contraseña'), 'ClavePrueba123');

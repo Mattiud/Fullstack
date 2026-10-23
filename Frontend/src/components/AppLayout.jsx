@@ -3,6 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../context/useAuth';
 import { NOMBRES_ROLES, PERMISOS } from '../constants/auth';
+import { iniciales } from '../utils/formato';
 import { BotonEnlace } from './ui';
 
 // Estructura común de los mockups: navegación lateral fija y contenido a la derecha.
@@ -124,15 +125,6 @@ const Principal = styled.main`
   flex-direction: column;
 `;
 
-function iniciales(nombre) {
-  return nombre
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((parte) => parte[0].toUpperCase())
-    .join('');
-}
-
 export default function AppLayout() {
   const { usuario, cerrarSesion, tienePermiso } = useAuth();
   const [cerrando, setCerrando] = useState(false);
@@ -156,6 +148,9 @@ export default function AppLayout() {
               <NavLink to="/" end>
                 Inicio
               </NavLink>
+              {tienePermiso(PERMISOS.EXPEDIENTES_LEER) && (
+                <NavLink to="/menores">Menores</NavLink>
+              )}
               {tienePermiso(PERMISOS.USUARIOS_GESTIONAR) && (
                 <NavLink to="/usuarios">Usuarios</NavLink>
               )}

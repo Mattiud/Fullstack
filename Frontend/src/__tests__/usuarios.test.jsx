@@ -147,7 +147,7 @@ describe('Usuarios y roles (administrador)', () => {
     );
     await user.type(formulario.getByLabelText('Nombre'), nuevo.nombre);
     await user.type(
-      formulario.getByLabelText('Correo institucional'),
+      formulario.getByLabelText('Correo electrónico'),
       nuevo.email
     );
     await user.selectOptions(formulario.getByLabelText('Rol'), 'admin');
@@ -194,7 +194,7 @@ describe('Usuarios y roles (administrador)', () => {
     );
     await user.type(formulario.getByLabelText('Nombre'), 'Cuenta Duplicada');
     await user.type(
-      formulario.getByLabelText('Correo institucional'),
+      formulario.getByLabelText('Correo electrónico'),
       usuarioPsico.email
     );
     await user.type(
@@ -205,13 +205,17 @@ describe('Usuarios y roles (administrador)', () => {
       formulario.getByRole('button', { name: 'Registrar usuario' })
     );
 
-    expect(await formulario.findByRole('alert')).toHaveTextContent(
+    expect(await screen.findByRole('alert')).toHaveTextContent(
       'Ya existe un usuario con ese correo'
+    );
+    expect(formulario.getByLabelText('Correo electrónico')).toHaveAttribute(
+      'aria-invalid',
+      'true'
     );
   });
 
-  test('desactiva una cuenta tras confirmar', async () => {
-    jest.spyOn(window, 'confirm').mockReturnValue(true);
+  test('desactiva una cuenta tras confirmar en el modal de la aplicación', async () => {
+    const confirmNativo = jest.spyOn(window, 'confirm');
     usersApi.actualizarUsuario.mockResolvedValue({
       ...usuarioPsico,
       activo: false,
@@ -224,6 +228,11 @@ describe('Usuarios y roles (administrador)', () => {
         name: `Desactivar a ${usuarioPsico.nombre}`,
       })
     );
+    const modal = screen.getByRole('alertdialog', {
+      name: 'Desactivar cuenta',
+    });
+    expect(usersApi.actualizarUsuario).not.toHaveBeenCalled();
+    await user.click(within(modal).getByRole('button', { name: 'Desactivar' }));
 
     expect(usersApi.actualizarUsuario).toHaveBeenCalledWith(usuarioPsico._id, {
       activo: false,
@@ -232,12 +241,13 @@ describe('Usuarios y roles (administrador)', () => {
       await within(fila(usuarioPsico.nombre)).findByText('Inactivo')
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: `Activar a ${usuarioPsico.nombre}` })
+      screen.getByText(`Se desactivó la cuenta de ${usuarioPsico.nombre}.`)
     ).toBeInTheDocument();
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(confirmNativo).not.toHaveBeenCalled();
   });
 
   test('no desactiva la cuenta si se cancela la confirmación', async () => {
-    jest.spyOn(window, 'confirm').mockReturnValue(false);
     const user = userEvent.setup();
     await abrirGestion();
 
@@ -246,7 +256,13 @@ describe('Usuarios y roles (administrador)', () => {
         name: `Desactivar a ${usuarioPsico.nombre}`,
       })
     );
+    await user.click(screen.getByRole('button', { name: 'Cancelar' }));
+
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(usersApi.actualizarUsuario).not.toHaveBeenCalled();
+    expect(
+      within(fila(usuarioPsico.nombre)).getByText('Activo')
+    ).toBeInTheDocument();
   });
 
   test('edita el rol de un usuario', async () => {

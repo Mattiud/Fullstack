@@ -21,6 +21,15 @@ function errorHandler(err, req, res, next) {
   if (err.type === 'entity.too.large') {
     return res.status(413).json({ error: 'La solicitud es demasiado grande' });
   }
+  if (err.name === 'MulterError') {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      const maxMb = Math.round((config.documentosMaxBytes / 1024 / 1024) * 10) / 10;
+      return res
+        .status(413)
+        .json({ error: `El archivo supera el tamaño máximo permitido (${maxMb} MB)` });
+    }
+    return res.status(400).json({ error: 'Envíe un único archivo en el campo "archivo"' });
+  }
   if (err.name === 'CastError') {
     return res.status(400).json({ error: 'Identificador inválido' });
   }

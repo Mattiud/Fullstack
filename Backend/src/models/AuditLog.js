@@ -12,7 +12,26 @@ const AUDIT_ACTIONS = Object.freeze({
   USUARIO_CREADO: 'USUARIO_CREADO',
   USUARIO_ACTUALIZADO: 'USUARIO_ACTUALIZADO',
   PASSWORD_TEMPORAL_ASIGNADA: 'PASSWORD_TEMPORAL_ASIGNADA',
+  MENOR_CREADO: 'MENOR_CREADO',
+  MENOR_CONSULTADO: 'MENOR_CONSULTADO',
+  MENOR_ACTUALIZADO: 'MENOR_ACTUALIZADO',
+  MENOR_ESTADO: 'MENOR_ESTADO',
+  PROFESIONALES_ASIGNADOS: 'PROFESIONALES_ASIGNADOS',
+  DOCUMENTO_SUBIDO: 'DOCUMENTO_SUBIDO',
+  DOCUMENTO_CONSULTADO: 'DOCUMENTO_CONSULTADO',
+  DOCUMENTO_DESCARGADO: 'DOCUMENTO_DESCARGADO',
+  DOCUMENTO_ELIMINADO: 'DOCUMENTO_ELIMINADO',
 });
+
+// Acciones que forman el historial de cambios de un expediente.
+const ACCIONES_HISTORIAL = Object.freeze([
+  AUDIT_ACTIONS.MENOR_CREADO,
+  AUDIT_ACTIONS.MENOR_ACTUALIZADO,
+  AUDIT_ACTIONS.MENOR_ESTADO,
+  AUDIT_ACTIONS.PROFESIONALES_ASIGNADOS,
+  AUDIT_ACTIONS.DOCUMENTO_SUBIDO,
+  AUDIT_ACTIONS.DOCUMENTO_ELIMINADO,
+]);
 
 // Nunca se almacenan contraseñas, tokens ni contenido de expedientes.
 const auditLogSchema = new mongoose.Schema({
@@ -25,7 +44,7 @@ const auditLogSchema = new mongoose.Schema({
     default: 'exito',
   },
   recurso: String,
-  recursoId: String,
+  recursoId: { type: String, index: true },
   ip: String,
   detalle: mongoose.Schema.Types.Mixed,
 });
@@ -55,3 +74,4 @@ auditLogSchema.pre('save', async function () {
 
 module.exports = mongoose.model('AuditLog', auditLogSchema);
 module.exports.AUDIT_ACTIONS = AUDIT_ACTIONS;
+module.exports.ACCIONES_HISTORIAL = ACCIONES_HISTORIAL;
