@@ -3,6 +3,9 @@ const authRoutes = require('./auth.routes');
 const usersRoutes = require('./users.routes');
 const auditRoutes = require('./audit.routes');
 const menoresRoutes = require('./menores.routes');
+const diagnosticosRoutes = require('./diagnosticos.routes');
+const tiposDiagnosticoRoutes = require('./tiposDiagnostico.routes');
+const sesionesRoutes = require('./sesiones.routes');
 
 const router = express.Router();
 
@@ -10,5 +13,8 @@ router.use('/auth', authRoutes);
 router.use('/users', usersRoutes);
 router.use('/audit-logs', auditRoutes);
 router.use('/menores', menoresRoutes);
+router.use('/diagnosticos', diagnosticosRoutes);
+router.use('/tipos-diagnostico', tiposDiagnosticoRoutes);
+router.use('/sesiones', sesionesRoutes);
 
 module.exports = router;

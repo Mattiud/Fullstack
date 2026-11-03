@@ -151,6 +151,15 @@ export default function AppLayout() {
               {tienePermiso(PERMISOS.EXPEDIENTES_LEER) && (
                 <NavLink to="/menores">Menores</NavLink>
               )}
+              {tienePermiso(PERMISOS.EXPEDIENTES_LEER) && (
+                <NavLink to="/diagnosticos">Diagnósticos</NavLink>
+              )}
+              {tienePermiso(PERMISOS.EXPEDIENTES_LEER) && (
+                <NavLink to="/sesiones">Sesiones</NavLink>
+              )}
+              {tienePermiso(PERMISOS.DIAGNOSTICOS_TIPOS) && (
+                <NavLink to="/tipos-diagnostico">Tipos de diagnóstico</NavLink>
+              )}
               {tienePermiso(PERMISOS.USUARIOS_GESTIONAR) && (
                 <NavLink to="/usuarios">Usuarios</NavLink>
               )}

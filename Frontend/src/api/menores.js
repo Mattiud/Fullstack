@@ -12,6 +12,13 @@ export async function listarMenores({
   return data;
 }
 
+// Fichas activas y accesibles que coinciden con el nombre o RUT, con su RUT para
+// identificarlas al seleccionarlas.
+export async function buscarMenores(q) {
+  const { data } = await client.get('/menores/buscar', { params: { q } });
+  return data.menores;
+}
+
 export async function obtenerMenor(id) {
   const { data } = await client.get(`/menores/${id}`);
   return data.menor;

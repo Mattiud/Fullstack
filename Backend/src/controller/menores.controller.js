@@ -138,6 +138,26 @@ function filtroBusqueda(q) {
   return { $or: condiciones };
 }
 
+const MAX_RESULTADOS_BUSQUEDA = 10;
+
+// Búsqueda para seleccionar un menor (por ejemplo, al registrar un diagnóstico): solo
+// fichas activas y accesibles, con el nombre y el RUT para identificarlas.
+async function buscarMenores(req, res) {
+  const busqueda = typeof req.query.q === 'string' ? filtroBusqueda(req.query.q) : null;
+  if (!busqueda) return res.json({ menores: [] });
+
+  const menores = await Menor.find({
+    ...filtroMenoresAccesibles(req.user),
+    ...busqueda,
+    activo: true,
+  })
+    .select('nombre rut')
+    .sort({ nombre: 1 })
+    .limit(MAX_RESULTADOS_BUSQUEDA)
+    .lean();
+  res.json({ menores: menores.map(({ _id, nombre, rut }) => ({ _id, nombre, rut })) });
+}
+
 async function listarMenores(req, res) {
   const pagina = Math.max(1, parseInt(req.query.pagina, 10) || 1);
   const filtro = { ...filtroMenoresAccesibles(req.user) };
@@ -338,6 +358,7 @@ async function obtenerHistorial(req, res) {
 
 module.exports = {
   listarMenores,
+  buscarMenores,
   crearMenor,
   obtenerMenor,
   actualizarMenor,

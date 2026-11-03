@@ -11,6 +11,11 @@ import Usuarios from './pages/admin/Usuarios';
 import ListadoMenores from './pages/menores/ListadoMenores';
 import FichaMenor from './pages/menores/FichaMenor';
 import FormularioMenor from './pages/menores/FormularioMenor';
+import ListadoDiagnosticos from './pages/diagnosticos/ListadoDiagnosticos';
+import DetalleDiagnostico from './pages/diagnosticos/DetalleDiagnostico';
+import TiposDiagnostico from './pages/admin/TiposDiagnostico';
+import ListadoSesiones from './pages/sesiones/ListadoSesiones';
+import FormularioSesion from './pages/sesiones/FormularioSesion';
 
 // Rutas para el enrutador de datos (necesario para avisar de cambios sin guardar).
 export const rutas = [
@@ -33,6 +38,16 @@ export const rutas = [
                 children: [
                   { path: 'menores', element: <ListadoMenores /> },
                   { path: 'menores/:menorId', element: <FichaMenor /> },
+                  { path: 'diagnosticos', element: <ListadoDiagnosticos /> },
+                  {
+                    path: 'menores/:menorId/diagnosticos/:diagnosticoId',
+                    element: <DetalleDiagnostico />,
+                  },
+                  { path: 'sesiones', element: <ListadoSesiones /> },
+                  {
+                    path: 'menores/:menorId/sesiones/:sesionId',
+                    element: <FormularioSesion />,
+                  },
                 ],
               },
               {
@@ -45,6 +60,20 @@ export const rutas = [
                     path: 'menores/:menorId/editar',
                     element: <FormularioMenor />,
                   },
+                ],
+              },
+              {
+                element: <ProtectedRoute permiso={PERMISOS.SESIONES_EDITAR} />,
+                children: [
+                  { path: 'sesiones/nueva', element: <FormularioSesion /> },
+                ],
+              },
+              {
+                element: (
+                  <ProtectedRoute permiso={PERMISOS.DIAGNOSTICOS_TIPOS} />
+                ),
+                children: [
+                  { path: 'tipos-diagnostico', element: <TiposDiagnostico /> },
                 ],
               },
               {

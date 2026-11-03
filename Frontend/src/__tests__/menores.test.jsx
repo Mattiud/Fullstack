@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import * as authApi from '../api/auth';
 import * as usersApi from '../api/users';
 import * as menoresApi from '../api/menores';
+import * as diagnosticosApi from '../api/diagnosticos';
+import * as sesionesApi from '../api/sesiones';
 import {
   errorHttp,
   renderApp,
@@ -14,6 +16,8 @@ jest.mock('../api/auth');
 jest.mock('../api/users');
 jest.mock('../api/audit');
 jest.mock('../api/menores');
+jest.mock('../api/diagnosticos');
+jest.mock('../api/sesiones');
 
 // Datos ficticios.
 const menorFicticio = {
@@ -51,6 +55,8 @@ function sesionComo(usuario) {
 }
 
 beforeEach(() => {
+  diagnosticosApi.listarDiagnosticosMenor.mockResolvedValue([]);
+  sesionesApi.listarSesionesMenor.mockResolvedValue([]);
   menoresApi.obtenerMenor.mockResolvedValue(menorFicticio);
   menoresApi.listarDocumentos.mockResolvedValue(sinDocumentos);
   menoresApi.listarMenores.mockResolvedValue({

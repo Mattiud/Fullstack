@@ -230,6 +230,58 @@ describe('Listado', () => {
   });
 });
 
+describe('Búsqueda para seleccionar un menor', () => {
+  const buscar = (agent, q) => agent.get('/api/menores/buscar').query(q === undefined ? {} : { q });
+
+  test('encuentra por nombre o RUT y devuelve solo nombre y RUT', async () => {
+    await registrar();
+    await registrar({ nombre: 'Otro Ficticio', rut: '7.654.321-6' });
+
+    const porNombre = await buscar(psicoAgent, 'ficticio uno');
+    expect(porNombre.status).toBe(200);
+    expect(porNombre.body.menores).toEqual([
+      { _id: expect.any(String), nombre: 'Menor Ficticio Uno', rut: '12345678-5' },
+    ]);
+    for (const q of ['12.345.678', '123456785', '12345678-5']) {
+      expect((await buscar(psicoAgent, q)).body.menores.map((m) => m.nombre)).toEqual([
+        'Menor Ficticio Uno',
+      ]);
+    }
+    expect((await buscar(psicoAgent, 'ficticio')).body.menores.map((m) => m.nombre)).toEqual([
+      'Menor Ficticio Uno',
+      'Otro Ficticio',
+    ]);
+  });
+
+  test('sin coincidencias o sin texto devuelve una lista vacía', async () => {
+    await registrar();
+    expect((await buscar(psicoAgent, 'inexistente')).body.menores).toEqual([]);
+    expect((await buscar(psicoAgent, '   ')).body.menores).toEqual([]);
+    expect((await buscar(psicoAgent)).body.menores).toEqual([]);
+    expect((await buscar(psicoAgent, '.*')).body.menores).toEqual([]);
+  });
+
+  test('excluye las fichas inactivas y los menores no asignados', async () => {
+    const menor = await registrar();
+    await otroAgent.post('/api/menores').send(datosMenor({ nombre: 'Menor Ficticio Dos', rut: '7.654.321-6' }));
+
+    expect((await buscar(psicoAgent, 'ficticio')).body.menores.map((m) => m.nombre)).toEqual([
+      'Menor Ficticio Uno',
+    ]);
+    expect((await buscar(psicoAgent, '7654321')).body.menores).toEqual([]);
+    // El administrador encuentra a todos.
+    expect((await buscar(adminAgent, 'ficticio')).body.menores).toHaveLength(2);
+
+    await psicoAgent.patch(`/api/menores/${menor._id}/estado`).send({ activo: false });
+    expect((await buscar(psicoAgent, 'ficticio')).body.menores).toEqual([]);
+  });
+
+  test('requiere sesión', async () => {
+    const res = await request(app).get('/api/menores/buscar').query({ q: 'ficticio' });
+    expect(res.status).toBe(401);
+  });
+});
+
 describe('Consulta y actualización (T06)', () => {
   test('el psicopedagogo asignado consulta la ficha y queda registrado el acceso', async () => {
     const menor = await registrar();

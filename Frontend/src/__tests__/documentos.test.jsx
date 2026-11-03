@@ -2,6 +2,8 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as authApi from '../api/auth';
 import * as menoresApi from '../api/menores';
+import * as diagnosticosApi from '../api/diagnosticos';
+import * as sesionesApi from '../api/sesiones';
 import {
   errorHttp,
   renderApp,
@@ -13,6 +15,8 @@ jest.mock('../api/auth');
 jest.mock('../api/users');
 jest.mock('../api/audit');
 jest.mock('../api/menores');
+jest.mock('../api/diagnosticos');
+jest.mock('../api/sesiones');
 // pdf.js no funciona en jsdom: se reemplaza el visor por uno que muestra lo recibido.
 jest.mock('../components/documentos/VisorPdf', () => ({
   __esModule: true,
@@ -68,6 +72,8 @@ const limites = {
 };
 
 beforeEach(() => {
+  diagnosticosApi.listarDiagnosticosMenor.mockResolvedValue([]);
+  sesionesApi.listarSesionesMenor.mockResolvedValue([]);
   menoresApi.obtenerMenor.mockResolvedValue(menorFicticio);
   menoresApi.listarDocumentos.mockResolvedValue({
     documentos: [pdf, docx],

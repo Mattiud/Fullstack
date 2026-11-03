@@ -11,6 +11,8 @@ const MATRIZ = [
   ['Acceder a expedientes no asignados', PERMISSIONS.EXPEDIENTES_TODOS, true, false],
   ['Registrar y editar menores', PERMISSIONS.EXPEDIENTES_ESCRIBIR, false, true],
   ['Asignar profesionales a un menor', PERMISSIONS.EXPEDIENTES_ASIGNAR, true, false],
+  ['Gestionar tipos de diagnóstico', PERMISSIONS.DIAGNOSTICOS_TIPOS, true, false],
+  ['Planificar sesiones', PERMISSIONS.SESIONES_EDITAR, false, true],
 ];
 
 describe('Matriz de permisos por rol', () => {

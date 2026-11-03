@@ -17,6 +17,7 @@ export const usuarioAdmin = {
     'expedientes:leer',
     'expedientes:todos',
     'expedientes:asignar',
+    'diagnosticos:tipos',
     'historial:leer',
   ],
 };
@@ -32,6 +33,7 @@ export const usuarioPsico = {
     'expedientes:leer',
     'expedientes:escribir',
     'diagnosticos:editar',
+    'sesiones:editar',
     'informes:emitir',
     'historial:leer',
   ],

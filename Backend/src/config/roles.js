@@ -15,7 +15,12 @@ const PERMISSIONS = Object.freeze({
   EXPEDIENTES_ESCRIBIR: 'expedientes:escribir',
   // Asignar o quitar los profesionales responsables de cada menor.
   EXPEDIENTES_ASIGNAR: 'expedientes:asignar',
+  // Registrar y editar diagnósticos de los menores a los que se tiene acceso.
   DIAGNOSTICOS_EDITAR: 'diagnosticos:editar',
+  // Mantener las categorías sugeridas para el tipo de diagnóstico.
+  DIAGNOSTICOS_TIPOS: 'diagnosticos:tipos',
+  // Planificar sesiones y registrar su resultado en los menores a los que se tiene acceso.
+  SESIONES_EDITAR: 'sesiones:editar',
   INFORMES_EMITIR: 'informes:emitir',
   // Historial de cambios de los expedientes a los que se tiene acceso.
   HISTORIAL_LEER: 'historial:leer',
@@ -30,12 +35,14 @@ const ROLE_PERMISSIONS = Object.freeze({
     PERMISSIONS.EXPEDIENTES_LEER,
     PERMISSIONS.EXPEDIENTES_TODOS,
     PERMISSIONS.EXPEDIENTES_ASIGNAR,
+    PERMISSIONS.DIAGNOSTICOS_TIPOS,
     PERMISSIONS.HISTORIAL_LEER,
   ]),
   [ROLES.PSICOPEDAGOGO]: Object.freeze([
     PERMISSIONS.EXPEDIENTES_LEER,
     PERMISSIONS.EXPEDIENTES_ESCRIBIR,
     PERMISSIONS.DIAGNOSTICOS_EDITAR,
+    PERMISSIONS.SESIONES_EDITAR,
     PERMISSIONS.INFORMES_EMITIR,
     PERMISSIONS.HISTORIAL_LEER,
   ]),

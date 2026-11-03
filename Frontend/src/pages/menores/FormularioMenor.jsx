@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { useBlocker, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { actualizarMenor, crearMenor, obtenerMenor } from '../../api/menores';
 import { erroresDeCampos, mensajeDeError } from '../../api/client';
 import { useNotificaciones } from '../../context/useNotificaciones';
+import { useCambiosSinGuardar } from '../../hooks/useCambiosSinGuardar';
 import { fechaParaCampo, hoyParaCampo } from '../../utils/formato';
 import { formatearRut, validarRut } from '../../utils/rut';
 import {
@@ -197,7 +198,7 @@ export default function FormularioMenor() {
   const { menorId } = useParams();
   const esEdicion = Boolean(menorId);
   const navigate = useNavigate();
-  const { notificar, confirmar } = useNotificaciones();
+  const { notificar } = useNotificaciones();
   const [originales, setOriginales] = useState(
     esEdicion ? null : valoresIniciales
   );
@@ -230,38 +231,8 @@ export default function FormularioMenor() {
   const hayCambios =
     Boolean(valores) && JSON.stringify(valores) !== JSON.stringify(originales);
 
-  const bloqueo = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      hayCambios &&
-      !guardadoRef.current &&
-      currentLocation.pathname !== nextLocation.pathname
-  );
-  const bloqueoRef = useRef(bloqueo);
-  bloqueoRef.current = bloqueo;
-
-  // Al intentar salir con cambios pendientes se pide confirmación en un modal.
-  useEffect(() => {
-    if (bloqueo.state !== 'blocked') return;
-    confirmar({
-      titulo: 'Cambios sin guardar',
-      mensaje: 'Tiene cambios sin guardar. Si sale ahora, se perderán.',
-      textoConfirmar: 'Salir sin guardar',
-      textoCancelar: 'Seguir editando',
-    }).then((salir) =>
-      salir ? bloqueoRef.current.proceed() : bloqueoRef.current.reset()
-    );
-  }, [bloqueo.state, confirmar]);
-
-  // Aviso del navegador al cerrar o recargar la pestaña con cambios pendientes.
-  useEffect(() => {
-    if (!hayCambios) return undefined;
-    const avisar = (evento) => {
-      evento.preventDefault();
-      evento.returnValue = '';
-    };
-    window.addEventListener('beforeunload', avisar);
-    return () => window.removeEventListener('beforeunload', avisar);
-  }, [hayCambios]);
+  // Al intentar salir con cambios pendientes se pide confirmación.
+  useCambiosSinGuardar(hayCambios, guardadoRef);
 
   function handleChange(evento) {
     const { name, value } = evento.target;

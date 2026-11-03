@@ -24,6 +24,11 @@ import EncabezadoPagina, {
 import DocumentosMenor from '../../components/documentos/DocumentosMenor';
 import ProfesionalesAsignados from '../../components/menores/ProfesionalesAsignados';
 import HistorialMenor from '../../components/menores/HistorialMenor';
+import DiagnosticosMenor from '../../components/diagnosticos/DiagnosticosMenor';
+import DiagnosticoVigente from '../../components/diagnosticos/DiagnosticoVigente';
+import { listarDiagnosticosMenor } from '../../api/diagnosticos';
+import SesionesMenor from '../../components/sesiones/SesionesMenor';
+import { listarSesionesMenor } from '../../api/sesiones';
 import {
   Alerta,
   Boton,
@@ -35,8 +40,7 @@ import {
   TituloSeccion,
 } from '../../components/ui';
 
-// Pantalla 1f de los mockups. Las pestañas de diagnósticos, sesiones e informes se
-// agregarán con sus módulos.
+// Pantalla 1f de los mockups. La pestaña de informes se agregará con su módulo.
 
 const Cabecera = styled.header`
   padding: 14px 20px;
@@ -152,6 +156,8 @@ function Dato({ etiqueta, children }) {
 
 const PESTANAS = [
   { id: 'resumen', etiqueta: 'Resumen' },
+  { id: 'diagnosticos', etiqueta: 'Diagnósticos' },
+  { id: 'sesiones', etiqueta: 'Sesiones' },
   { id: 'documentos', etiqueta: 'Documentos' },
   { id: 'historial', etiqueta: 'Historial', permiso: PERMISOS.HISTORIAL_LEER },
 ];
@@ -163,6 +169,8 @@ export default function FichaMenor() {
   const { tienePermiso } = useAuth();
   const [menor, setMenor] = useState(null);
   const [documentos, setDocumentos] = useState(null);
+  const [diagnosticos, setDiagnosticos] = useState(null);
+  const [sesiones, setSesiones] = useState(null);
   const [error, setError] = useState('');
   const { notificar, confirmar } = useNotificaciones();
   const navigate = useNavigate();
@@ -193,12 +201,21 @@ export default function FichaMenor() {
     let vigente = true;
     setMenor(null);
     setError('');
-    Promise.all([obtenerMenor(menorId), listarDocumentos(menorId)])
-      .then(([datosMenor, datosDocumentos]) => {
-        if (!vigente) return;
-        setMenor(datosMenor);
-        setDocumentos(datosDocumentos);
-      })
+    Promise.all([
+      obtenerMenor(menorId),
+      listarDocumentos(menorId),
+      listarDiagnosticosMenor(menorId),
+      listarSesionesMenor(menorId),
+    ])
+      .then(
+        ([datosMenor, datosDocumentos, datosDiagnosticos, datosSesiones]) => {
+          if (!vigente) return;
+          setMenor(datosMenor);
+          setDocumentos(datosDocumentos);
+          setDiagnosticos(datosDiagnosticos);
+          setSesiones(datosSesiones);
+        }
+      )
       .catch((err) => {
         if (vigente)
           setError(mensajeDeError(err, 'No se pudo cargar el expediente'));
@@ -212,6 +229,20 @@ export default function FichaMenor() {
     setMenor(menorActualizado);
     setVersion((v) => v + 1);
     if (mensaje) notificar({ tipo: 'exito', mensaje });
+  }
+
+  // Tras registrar un diagnóstico se vuelve a pedir el listado (datos de resumen).
+  async function handleDiagnosticoGuardado(_diagnostico, mensaje) {
+    notificar({ tipo: 'exito', mensaje });
+    setVersion((v) => v + 1);
+    try {
+      setDiagnosticos(await listarDiagnosticosMenor(menorId));
+    } catch (err) {
+      notificar({
+        tipo: 'error',
+        mensaje: mensajeDeError(err, 'No se pudo actualizar el listado'),
+      });
+    }
   }
 
   async function handleEstado() {
@@ -255,7 +286,7 @@ export default function FichaMenor() {
     );
   }
 
-  if (!menor || !documentos) {
+  if (!menor || !documentos || !diagnosticos || !sesiones) {
     return <Cargando role="status">Cargando expediente…</Cargando>;
   }
 
@@ -311,6 +342,8 @@ export default function FichaMenor() {
             onClick={() => setParametros({ pestana: p.id }, { replace: true })}
           >
             {p.etiqueta}
+            {p.id === 'diagnosticos' && ` (${diagnosticos.length})`}
+            {p.id === 'sesiones' && ` (${sesiones.length})`}
             {p.id === 'documentos' && ` (${documentos.documentos.length})`}
           </Pestana>
         ))}
@@ -362,6 +395,10 @@ export default function FichaMenor() {
                 <Texto>{menor.antecedentesRelevantes}</Texto>
               </CuerpoPanel>
             </Panel>
+            <DiagnosticoVigente
+              menorId={menor._id}
+              diagnosticos={diagnosticos}
+            />
             <ProfesionalesAsignados
               menor={menor}
               puedeAsignar={tienePermiso(PERMISOS.EXPEDIENTES_ASIGNAR)}
@@ -373,6 +410,23 @@ export default function FichaMenor() {
               }
             />
           </Columnas>
+        )}
+
+        {pestana === 'diagnosticos' && (
+          <DiagnosticosMenor
+            menor={menor}
+            diagnosticos={diagnosticos}
+            puedeEditar={tienePermiso(PERMISOS.DIAGNOSTICOS_EDITAR)}
+            onGuardado={handleDiagnosticoGuardado}
+          />
+        )}
+
+        {pestana === 'sesiones' && (
+          <SesionesMenor
+            menor={menor}
+            sesiones={sesiones}
+            puedeEditar={tienePermiso(PERMISOS.SESIONES_EDITAR)}
+          />
         )}
 
         {pestana === 'documentos' && (

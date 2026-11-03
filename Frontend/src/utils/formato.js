@@ -62,10 +62,54 @@ const NOMBRES_CAMPOS = {
   'apoderado.nombre': 'nombre del apoderado',
   'apoderado.parentesco': 'parentesco',
   'apoderado.telefono': 'teléfono del apoderado',
+  tipo: 'tipo de diagnóstico',
+  fechaEvaluacion: 'fecha de evaluación',
+  instrumento: 'instrumento aplicado',
+  descripcion: 'descripción y hallazgos',
+  areasAfectadas: 'áreas afectadas',
+  fecha: 'fecha',
+  horaInicio: 'hora de inicio',
+  horaFin: 'hora de término',
+  diagnostico: 'diagnóstico asociado',
+  objetivos: 'objetivos',
+  logroObjetivos: 'logro de objetivos',
+  actividades: 'actividades',
+  asistencia: 'asistencia',
+  observaciones: 'observaciones',
 };
 
 function tipoDocumento(detalle) {
   return detalle.tipo ? ` (${detalle.tipo.toUpperCase()})` : '';
+}
+
+function listaCampos(detalle) {
+  return (detalle.campos ?? [])
+    .map((campo) => NOMBRES_CAMPOS[campo] ?? campo)
+    .join(', ');
+}
+
+// Un diagnóstico vigente en v1 que se "actualiza" es un borrador que se publicó.
+function describirDiagnostico(accion, detalle) {
+  const borrador = detalle.estado === 'borrador';
+  if (accion === 'DIAGNOSTICO_CREADO') {
+    return borrador
+      ? 'registró un borrador de diagnóstico'
+      : `registró un diagnóstico (v${detalle.version})`;
+  }
+  if (borrador)
+    return `actualizó un borrador de diagnóstico: ${listaCampos(detalle)}`;
+  if (detalle.version === 1)
+    return 'guardó un borrador como diagnóstico vigente (v1)';
+  return `actualizó un diagnóstico (v${detalle.version}): ${listaCampos(detalle)}`;
+}
+
+function describirSesion(accion, detalle) {
+  const borrador = detalle.estado === 'borrador';
+  if (accion === 'SESION_CREADA') {
+    return borrador ? 'registró un borrador de sesión' : 'planificó una sesión';
+  }
+  if (detalle.publicada) return 'guardó un borrador como sesión planificada';
+  return `actualizó ${borrador ? 'un borrador de sesión' : 'una sesión'}: ${listaCampos(detalle)}`;
 }
 
 // Descripción de un evento del historial de un expediente.
@@ -85,6 +129,12 @@ export function describirHistorial({ accion, detalle = {} }) {
       return `adjuntó un documento${tipoDocumento(detalle)}`;
     case 'DOCUMENTO_ELIMINADO':
       return `eliminó un documento${tipoDocumento(detalle)}`;
+    case 'DIAGNOSTICO_CREADO':
+    case 'DIAGNOSTICO_ACTUALIZADO':
+      return describirDiagnostico(accion, detalle);
+    case 'SESION_CREADA':
+    case 'SESION_ACTUALIZADA':
+      return describirSesion(accion, detalle);
     default:
       return accion;
   }
@@ -135,12 +185,28 @@ export function describirAuditoria(registro, usuariosPorId = new Map()) {
       return `visualizó un documento${tipoDocumento(detalle)}`;
     case 'DOCUMENTO_DESCARGADO':
       return `descargó un documento${tipoDocumento(detalle)}`;
+    case 'DIAGNOSTICO_CONSULTADO':
+      return 'consultó un diagnóstico';
+    case 'SESION_CONSULTADA':
+      return 'consultó una sesión';
+    case 'TIPO_DIAGNOSTICO_CREADO':
+      return 'agregó una categoría de tipo de diagnóstico';
+    case 'TIPO_DIAGNOSTICO_ACTUALIZADO':
+      if (detalle.campos?.includes('nombre'))
+        return 'renombró una categoría de tipo de diagnóstico';
+      return detalle.activo
+        ? 'reactivó una categoría de tipo de diagnóstico'
+        : 'desactivó una categoría de tipo de diagnóstico';
     case 'MENOR_CREADO':
     case 'MENOR_ACTUALIZADO':
     case 'MENOR_ESTADO':
     case 'PROFESIONALES_ASIGNADOS':
     case 'DOCUMENTO_SUBIDO':
     case 'DOCUMENTO_ELIMINADO':
+    case 'DIAGNOSTICO_CREADO':
+    case 'DIAGNOSTICO_ACTUALIZADO':
+    case 'SESION_CREADA':
+    case 'SESION_ACTUALIZADA':
       return `${describirHistorial(registro)} de un expediente`;
     default:
       return accion;

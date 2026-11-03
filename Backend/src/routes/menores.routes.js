@@ -5,8 +5,11 @@ const { authorizeMenorAccess } = require('../middleware/menorAccess');
 const { PERMISSIONS } = require('../config/roles');
 const Menor = require('../models/Menor');
 const documentosRoutes = require('./documentos.routes');
+const diagnosticosMenorRoutes = require('./diagnosticosMenor.routes');
+const sesionesMenorRoutes = require('./sesionesMenor.routes');
 const {
   listarMenores,
+  buscarMenores,
   crearMenor,
   obtenerMenor,
   actualizarMenor,
@@ -23,6 +26,8 @@ const escribir = authorize(PERMISSIONS.EXPEDIENTES_ESCRIBIR);
 router.use(authenticate(), authorize(PERMISSIONS.EXPEDIENTES_LEER));
 
 router.get('/', listarMenores);
+// Antes de /:menorId para que "buscar" no se interprete como un identificador.
+router.get('/buscar', buscarMenores);
 router.post('/', escribir, crearMenor);
 router.get('/:menorId', accesoMenor, obtenerMenor);
 router.patch('/:menorId', escribir, accesoMenor, actualizarMenor);
@@ -40,5 +45,7 @@ router.get(
   obtenerHistorial
 );
 router.use('/:menorId/documentos', accesoMenor, documentosRoutes);
+router.use('/:menorId/diagnosticos', accesoMenor, diagnosticosMenorRoutes);
+router.use('/:menorId/sesiones', accesoMenor, sesionesMenorRoutes);
 
 module.exports = router;

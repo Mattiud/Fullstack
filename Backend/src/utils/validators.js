@@ -130,6 +130,30 @@ function parsearFecha(value) {
     : fecha;
 }
 
+// Fecha de hoy (AAAA-MM-DD) en Chile, donde opera la Pyme. No se usa la fecha UTC:
+// desde las 20:00 o 21:00 de Chile ya corresponde al día siguiente.
+function hoyEnChile(ahora = new Date()) {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Santiago',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(ahora);
+}
+
+// Hora del día en formato HH:mm (24 horas).
+const HORA_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+function validarHora(value, { etiqueta, obligatorio = true }) {
+  if (value === undefined || value === null || value === '') {
+    return obligatorio ? `${etiqueta} es obligatoria` : null;
+  }
+  if (typeof value !== 'string' || !HORA_RE.test(value)) {
+    return `${etiqueta} no es una hora válida`;
+  }
+  return null;
+}
+
 function edadEn(fechaNacimiento, referencia = new Date()) {
   let edad = referencia.getUTCFullYear() - fechaNacimiento.getUTCFullYear();
   const mes = referencia.getUTCMonth() - fechaNacimiento.getUTCMonth();
@@ -171,6 +195,9 @@ module.exports = {
   normalizarRut,
   validarRut,
   parsearFecha,
+  hoyEnChile,
+  HORA_RE,
+  validarHora,
   edadEn,
   validarFecha,
   validarFechaNacimiento,
