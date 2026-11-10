@@ -22,6 +22,8 @@ const PERMISSIONS = Object.freeze({
   // Planificar sesiones y registrar su resultado en los menores a los que se tiene acceso.
   SESIONES_EDITAR: 'sesiones:editar',
   INFORMES_EMITIR: 'informes:emitir',
+  // Presentación institucional de los informes PDF (logo, encabezado y pie de página).
+  INFORMES_CONFIGURAR: 'informes:configurar',
   // Historial de cambios de los expedientes a los que se tiene acceso.
   HISTORIAL_LEER: 'historial:leer',
 });
@@ -36,6 +38,7 @@ const ROLE_PERMISSIONS = Object.freeze({
     PERMISSIONS.EXPEDIENTES_TODOS,
     PERMISSIONS.EXPEDIENTES_ASIGNAR,
     PERMISSIONS.DIAGNOSTICOS_TIPOS,
+    PERMISSIONS.INFORMES_CONFIGURAR,
     PERMISSIONS.HISTORIAL_LEER,
   ]),
   [ROLES.PSICOPEDAGOGO]: Object.freeze([

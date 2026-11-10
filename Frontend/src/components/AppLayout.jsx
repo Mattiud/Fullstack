@@ -5,6 +5,7 @@ import { useAuth } from '../context/useAuth';
 import { NOMBRES_ROLES, PERMISOS } from '../constants/auth';
 import { iniciales } from '../utils/formato';
 import { BotonEnlace } from './ui';
+import IconoNavegacion from './IconoNavegacion';
 
 // Estructura común de los mockups: navegación lateral fija y contenido a la derecha.
 // En pantallas angostas la barra lateral pasa a la parte superior.
@@ -52,6 +53,14 @@ const Navegacion = styled.nav`
     border-left: 4px solid transparent;
     color: inherit;
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  a svg {
+    flex: none;
+    color: ${({ theme }) => theme.colores.textoSuave};
   }
 
   a:hover {
@@ -62,6 +71,10 @@ const Navegacion = styled.nav`
     background: ${({ theme }) => theme.colores.lateralActivo};
     border-left-color: ${({ theme }) => theme.colores.primario};
     font-weight: 700;
+  }
+
+  a.active svg {
+    color: ${({ theme }) => theme.colores.primario};
   }
 
   @media (max-width: ${({ theme }) => theme.movil}) {
@@ -146,22 +159,56 @@ export default function AppLayout() {
           {!usuario.debeCambiarPassword && (
             <>
               <NavLink to="/" end>
+                <IconoNavegacion nombre="inicio" />
                 Inicio
               </NavLink>
               {tienePermiso(PERMISOS.EXPEDIENTES_LEER) && (
-                <NavLink to="/menores">Menores</NavLink>
+                <NavLink to="/menores">
+                  <IconoNavegacion nombre="menores" />
+                  Menores
+                </NavLink>
               )}
               {tienePermiso(PERMISOS.EXPEDIENTES_LEER) && (
-                <NavLink to="/diagnosticos">Diagnósticos</NavLink>
+                <NavLink to="/diagnosticos">
+                  <IconoNavegacion nombre="diagnosticos" />
+                  Diagnósticos
+                </NavLink>
               )}
               {tienePermiso(PERMISOS.EXPEDIENTES_LEER) && (
-                <NavLink to="/sesiones">Sesiones</NavLink>
+                <NavLink to="/sesiones">
+                  <IconoNavegacion nombre="sesiones" />
+                  Sesiones
+                </NavLink>
+              )}
+              {tienePermiso(PERMISOS.EXPEDIENTES_LEER) && (
+                <NavLink to="/calendario">
+                  <IconoNavegacion nombre="calendario" />
+                  Calendario
+                </NavLink>
+              )}
+              {tienePermiso(PERMISOS.INFORMES_EMITIR) && (
+                <NavLink to="/informes">
+                  <IconoNavegacion nombre="informes" />
+                  Informes
+                </NavLink>
               )}
               {tienePermiso(PERMISOS.DIAGNOSTICOS_TIPOS) && (
-                <NavLink to="/tipos-diagnostico">Tipos de diagnóstico</NavLink>
+                <NavLink to="/tipos-diagnostico">
+                  <IconoNavegacion nombre="tiposDiagnostico" />
+                  Tipos de diagnóstico
+                </NavLink>
+              )}
+              {tienePermiso(PERMISOS.INFORMES_CONFIGURAR) && (
+                <NavLink to="/configuracion-informes">
+                  <IconoNavegacion nombre="configuracionInformes" />
+                  Configuración de informes
+                </NavLink>
               )}
               {tienePermiso(PERMISOS.USUARIOS_GESTIONAR) && (
-                <NavLink to="/usuarios">Usuarios</NavLink>
+                <NavLink to="/usuarios">
+                  <IconoNavegacion nombre="usuarios" />
+                  Usuarios
+                </NavLink>
               )}
             </>
           )}
@@ -176,6 +223,10 @@ export default function AppLayout() {
           </Persona>
           <AccionesCuenta>
             <NavLink to="/cambiar-password">Cambiar contraseña</NavLink>
+            {tienePermiso(PERMISOS.INFORMES_EMITIR) &&
+              !usuario.debeCambiarPassword && (
+                <NavLink to="/datos-profesionales">Datos profesionales</NavLink>
+              )}
             <BotonEnlace
               type="button"
               onClick={handleCerrarSesion}

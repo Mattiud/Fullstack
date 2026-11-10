@@ -14,8 +14,13 @@ import FormularioMenor from './pages/menores/FormularioMenor';
 import ListadoDiagnosticos from './pages/diagnosticos/ListadoDiagnosticos';
 import DetalleDiagnostico from './pages/diagnosticos/DetalleDiagnostico';
 import TiposDiagnostico from './pages/admin/TiposDiagnostico';
+import ConfiguracionInformes from './pages/admin/ConfiguracionInformes';
+import ListadoInformes from './pages/informes/ListadoInformes';
+import FormularioInforme from './pages/informes/FormularioInforme';
+import DatosProfesionales from './pages/DatosProfesionales';
 import ListadoSesiones from './pages/sesiones/ListadoSesiones';
 import FormularioSesion from './pages/sesiones/FormularioSesion';
+import CalendarioSesiones from './pages/sesiones/CalendarioSesiones';
 
 // Rutas para el enrutador de datos (necesario para avisar de cambios sin guardar).
 export const rutas = [
@@ -44,6 +49,7 @@ export const rutas = [
                     element: <DetalleDiagnostico />,
                   },
                   { path: 'sesiones', element: <ListadoSesiones /> },
+                  { path: 'calendario', element: <CalendarioSesiones /> },
                   {
                     path: 'menores/:menorId/sesiones/:sesionId',
                     element: <FormularioSesion />,
@@ -74,6 +80,32 @@ export const rutas = [
                 ),
                 children: [
                   { path: 'tipos-diagnostico', element: <TiposDiagnostico /> },
+                ],
+              },
+              {
+                element: <ProtectedRoute permiso={PERMISOS.INFORMES_EMITIR} />,
+                children: [
+                  { path: 'informes', element: <ListadoInformes /> },
+                  { path: 'informes/nuevo', element: <FormularioInforme /> },
+                  {
+                    path: 'datos-profesionales',
+                    element: <DatosProfesionales />,
+                  },
+                  {
+                    path: 'menores/:menorId/informes/:informeId',
+                    element: <FormularioInforme />,
+                  },
+                ],
+              },
+              {
+                element: (
+                  <ProtectedRoute permiso={PERMISOS.INFORMES_CONFIGURAR} />
+                ),
+                children: [
+                  {
+                    path: 'configuracion-informes',
+                    element: <ConfiguracionInformes />,
+                  },
                 ],
               },
               {

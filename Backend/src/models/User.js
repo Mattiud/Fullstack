@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { ROLES } = require('../config/roles');
+const { LIMITES_DATOS_PROFESIONALES: LIMITES } = require('../config/informes');
 
 const userSchema = new mongoose.Schema(
   {
@@ -43,6 +44,19 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
     ultimoAcceso: Date,
+    // Datos que el psicopedagogo define para el pie de página de sus informes PDF.
+    datosProfesionales: {
+      type: new mongoose.Schema(
+        {
+          tituloProfesional: { type: String, trim: true, maxlength: LIMITES.tituloProfesional },
+          registro: { type: String, trim: true, maxlength: LIMITES.registro },
+          correo: { type: String, trim: true, lowercase: true, maxlength: LIMITES.correo },
+          telefono: { type: String, trim: true, maxlength: LIMITES.telefono },
+        },
+        { _id: false }
+      ),
+      default: undefined,
+    },
     creadoPor: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     actualizadoPor: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   },

@@ -48,3 +48,19 @@ export async function actualizarSesion(
   );
   return data;
 }
+
+// Calendario: todas las sesiones con fecha del período (AAAA-MM-DD), sin paginar.
+export async function obtenerCalendario({
+  desde,
+  hasta,
+  mias = false,
+  menor = null,
+  borradores = false,
+}) {
+  const params = { desde, hasta };
+  if (mias) params.mias = true;
+  if (menor) params.menor = menor;
+  if (borradores) params.borradores = true;
+  const { data } = await client.get('/sesiones/calendario', { params });
+  return data.sesiones;
+}

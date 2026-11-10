@@ -75,7 +75,12 @@ function textoMenor(menor) {
   return `${menor.nombre} · RUT ${formatearRut(menor.rut)}`;
 }
 
-export default function BuscadorMenor({ seleccionado, onSeleccionar, error }) {
+export default function BuscadorMenor({
+  seleccionado,
+  onSeleccionar,
+  error,
+  etiqueta = 'Menor *',
+}) {
   const id = useId();
   const [texto, setTexto] = useState('');
   const [abierta, setAbierta] = useState(false);
@@ -156,7 +161,7 @@ export default function BuscadorMenor({ seleccionado, onSeleccionar, error }) {
   if (seleccionado) {
     return (
       <Campo>
-        <Etiqueta as="span">Menor *</Etiqueta>
+        <Etiqueta as="span">{etiqueta}</Etiqueta>
         <Elegido $invalido={Boolean(error)}>
           <strong>{textoMenor(seleccionado)}</strong>
           <BotonPequeno
@@ -182,7 +187,7 @@ export default function BuscadorMenor({ seleccionado, onSeleccionar, error }) {
 
   return (
     <Campo>
-      <Etiqueta htmlFor={`${id}-entrada`}>Menor *</Etiqueta>
+      <Etiqueta htmlFor={`${id}-entrada`}>{etiqueta}</Etiqueta>
       <Entrada
         id={`${id}-entrada`}
         type="text"

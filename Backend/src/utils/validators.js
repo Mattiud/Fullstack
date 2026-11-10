@@ -163,6 +163,30 @@ function edadEn(fechaNacimiento, referencia = new Date()) {
   return edad;
 }
 
+// Edad cronológica en años y meses cumplidos a la fecha de referencia (en UTC, como
+// las fechas sin hora del sistema). Un nacimiento el 29 de febrero cumple meses el
+// último día de los meses más cortos.
+function edadCronologica(fechaNacimiento, referencia) {
+  let meses =
+    (referencia.getUTCFullYear() - fechaNacimiento.getUTCFullYear()) * 12 +
+    (referencia.getUTCMonth() - fechaNacimiento.getUTCMonth());
+  const ultimoDiaMes = new Date(
+    Date.UTC(referencia.getUTCFullYear(), referencia.getUTCMonth() + 1, 0)
+  ).getUTCDate();
+  const diaCumple = Math.min(fechaNacimiento.getUTCDate(), ultimoDiaMes);
+  if (referencia.getUTCDate() < diaCumple) meses -= 1;
+  if (meses < 0) return null;
+  return { anios: Math.floor(meses / 12), meses: meses % 12 };
+}
+
+function formatearEdadCronologica(edad) {
+  if (!edad) return '';
+  const anios = `${edad.anios} ${edad.anios === 1 ? 'año' : 'años'}`;
+  const meses = `${edad.meses} ${edad.meses === 1 ? 'mes' : 'meses'}`;
+  if (edad.anios === 0) return meses;
+  return edad.meses === 0 ? anios : `${anios} y ${meses}`;
+}
+
 function validarFecha(value, { etiqueta, obligatorio = true }) {
   if (value === undefined || value === null || value === '') {
     return obligatorio ? `${etiqueta} es obligatoria` : null;
@@ -199,6 +223,8 @@ module.exports = {
   HORA_RE,
   validarHora,
   edadEn,
+  edadCronologica,
+  formatearEdadCronologica,
   validarFecha,
   validarFechaNacimiento,
   validarTelefono,

@@ -11,6 +11,7 @@ export const PERMISOS = {
   DIAGNOSTICOS_TIPOS: 'diagnosticos:tipos',
   SESIONES_EDITAR: 'sesiones:editar',
   INFORMES_EMITIR: 'informes:emitir',
+  INFORMES_CONFIGURAR: 'informes:configurar',
   HISTORIAL_LEER: 'historial:leer',
 };
 
@@ -32,6 +33,7 @@ export const PERMISOS_POR_ROL = {
     PERMISOS.EXPEDIENTES_TODOS,
     PERMISOS.EXPEDIENTES_ASIGNAR,
     PERMISOS.DIAGNOSTICOS_TIPOS,
+    PERMISOS.INFORMES_CONFIGURAR,
     PERMISOS.HISTORIAL_LEER,
   ],
   [ROLES.PSICOPEDAGOGO]: [

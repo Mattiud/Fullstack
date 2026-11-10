@@ -29,6 +29,8 @@ import DiagnosticoVigente from '../../components/diagnosticos/DiagnosticoVigente
 import { listarDiagnosticosMenor } from '../../api/diagnosticos';
 import SesionesMenor from '../../components/sesiones/SesionesMenor';
 import { listarSesionesMenor } from '../../api/sesiones';
+import InformesMenor from '../../components/informes/InformesMenor';
+import { listarInformesMenor } from '../../api/informes';
 import {
   Alerta,
   Boton,
@@ -40,7 +42,8 @@ import {
   TituloSeccion,
 } from '../../components/ui';
 
-// Pantalla 1f de los mockups. La pestaña de informes se agregará con su módulo.
+// Pantalla 1f de los mockups. La pestaña de informes solo aparece para quien los emite
+// (el administrador no accede a los informes).
 
 const Cabecera = styled.header`
   padding: 14px 20px;
@@ -159,6 +162,7 @@ const PESTANAS = [
   { id: 'diagnosticos', etiqueta: 'Diagnósticos' },
   { id: 'sesiones', etiqueta: 'Sesiones' },
   { id: 'documentos', etiqueta: 'Documentos' },
+  { id: 'informes', etiqueta: 'Informes', permiso: PERMISOS.INFORMES_EMITIR },
   { id: 'historial', etiqueta: 'Historial', permiso: PERMISOS.HISTORIAL_LEER },
 ];
 
@@ -171,6 +175,8 @@ export default function FichaMenor() {
   const [documentos, setDocumentos] = useState(null);
   const [diagnosticos, setDiagnosticos] = useState(null);
   const [sesiones, setSesiones] = useState(null);
+  // null si el usuario no emite informes (no se consultan).
+  const [informes, setInformes] = useState(null);
   const [error, setError] = useState('');
   const { notificar, confirmar } = useNotificaciones();
   const navigate = useNavigate();
@@ -190,6 +196,7 @@ export default function FichaMenor() {
   }, [avisoRecibido, notificar, navigate, location.pathname, location.search]);
 
   const puedeEditar = tienePermiso(PERMISOS.EXPEDIENTES_ESCRIBIR);
+  const emiteInformes = tienePermiso(PERMISOS.INFORMES_EMITIR);
   const pestanas = PESTANAS.filter(
     (p) => !p.permiso || tienePermiso(p.permiso)
   );
@@ -206,14 +213,22 @@ export default function FichaMenor() {
       listarDocumentos(menorId),
       listarDiagnosticosMenor(menorId),
       listarSesionesMenor(menorId),
+      emiteInformes ? listarInformesMenor(menorId) : null,
     ])
       .then(
-        ([datosMenor, datosDocumentos, datosDiagnosticos, datosSesiones]) => {
+        ([
+          datosMenor,
+          datosDocumentos,
+          datosDiagnosticos,
+          datosSesiones,
+          datosInformes,
+        ]) => {
           if (!vigente) return;
           setMenor(datosMenor);
           setDocumentos(datosDocumentos);
           setDiagnosticos(datosDiagnosticos);
           setSesiones(datosSesiones);
+          setInformes(datosInformes);
         }
       )
       .catch((err) => {
@@ -223,7 +238,7 @@ export default function FichaMenor() {
     return () => {
       vigente = false;
     };
-  }, [menorId]);
+  }, [menorId, emiteInformes]);
 
   function actualizar(menorActualizado, mensaje) {
     setMenor(menorActualizado);
@@ -345,6 +360,7 @@ export default function FichaMenor() {
             {p.id === 'diagnosticos' && ` (${diagnosticos.length})`}
             {p.id === 'sesiones' && ` (${sesiones.length})`}
             {p.id === 'documentos' && ` (${documentos.documentos.length})`}
+            {p.id === 'informes' && informes && ` (${informes.length})`}
           </Pestana>
         ))}
       </Pestanas>
@@ -450,6 +466,10 @@ export default function FichaMenor() {
               setVersion((v) => v + 1);
             }}
           />
+        )}
+
+        {pestana === 'informes' && informes && (
+          <InformesMenor menor={menor} informes={informes} />
         )}
 
         {pestana === 'historial' && (

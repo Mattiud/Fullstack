@@ -18,6 +18,7 @@ export const usuarioAdmin = {
     'expedientes:todos',
     'expedientes:asignar',
     'diagnosticos:tipos',
+    'informes:configurar',
     'historial:leer',
   ],
 };

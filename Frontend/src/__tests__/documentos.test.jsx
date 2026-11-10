@@ -17,6 +17,8 @@ jest.mock('../api/audit');
 jest.mock('../api/menores');
 jest.mock('../api/diagnosticos');
 jest.mock('../api/sesiones');
+// La ficha también pide los informes del menor (psicopedagogo).
+jest.mock('../api/informes');
 // pdf.js no funciona en jsdom: se reemplaza el visor por uno que muestra lo recibido.
 jest.mock('../components/documentos/VisorPdf', () => ({
   __esModule: true,

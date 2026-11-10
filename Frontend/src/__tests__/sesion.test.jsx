@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as authApi from '../api/auth';
 import * as usersApi from '../api/users';
@@ -132,6 +132,30 @@ describe('Inicio de sesión', () => {
 });
 
 describe('Sesión', () => {
+  test('el menú muestra un ícono decorativo antes de cada sección', async () => {
+    authApi.obtenerSesion.mockResolvedValue(usuarioAdmin);
+    renderApp('/');
+
+    const menu = await screen.findByRole('navigation', { name: 'Principal' });
+    const enlaces = within(menu).getAllByRole('link');
+    expect(enlaces.map((enlace) => enlace.textContent)).toEqual([
+      'Inicio',
+      'Menores',
+      'Diagnósticos',
+      'Sesiones',
+      'Calendario',
+      'Tipos de diagnóstico',
+      'Configuración de informes',
+      'Usuarios',
+    ]);
+    for (const enlace of enlaces) {
+      const icono = enlace.querySelector('svg');
+      expect(icono).toHaveAttribute('aria-hidden', 'true');
+      // El ícono no forma parte del nombre del enlace.
+      expect(enlace).toHaveAccessibleName(enlace.textContent);
+    }
+  });
+
   test('recupera la sesión al recargar la aplicación', async () => {
     authApi.obtenerSesion.mockResolvedValue(usuarioPsico);
     renderApp('/');

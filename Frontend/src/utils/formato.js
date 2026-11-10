@@ -76,6 +76,19 @@ const NOMBRES_CAMPOS = {
   actividades: 'actividades',
   asistencia: 'asistencia',
   observaciones: 'observaciones',
+  fechaInforme: 'fecha del informe',
+  motivoConsulta: 'motivo de consulta',
+  analisisCuantitativo: 'análisis cuantitativo',
+  analisisCualitativo: 'análisis cualitativo',
+  conclusion: 'conclusión psicopedagógica',
+  'sugerencias.familia': 'sugerencias (familia)',
+  'sugerencias.escuela': 'sugerencias (escuela)',
+  'sugerencias.nino': 'sugerencias (niño)',
+  instrumentoEvaluativo: 'instrumento evaluativo',
+  areasEvaluacion: 'áreas de evaluación',
+  tablasCuantitativas: 'tablas de resultados cuantitativos',
+  objetivoEvaluacion: 'objetivo de la evaluación',
+  areasCualitativas: 'áreas del análisis cualitativo',
 };
 
 function tipoDocumento(detalle) {
@@ -135,6 +148,12 @@ export function describirHistorial({ accion, detalle = {} }) {
     case 'SESION_CREADA':
     case 'SESION_ACTUALIZADA':
       return describirSesion(accion, detalle);
+    case 'INFORME_CREADO':
+      return 'registró un informe psicopedagógico';
+    case 'INFORME_ACTUALIZADO':
+      return `actualizó un informe psicopedagógico: ${listaCampos(detalle)}`;
+    case 'INFORME_PDF_GENERADO':
+      return `generó el PDF de un informe (versión ${detalle.version})`;
     default:
       return accion;
   }
@@ -189,6 +208,14 @@ export function describirAuditoria(registro, usuariosPorId = new Map()) {
       return 'consultó un diagnóstico';
     case 'SESION_CONSULTADA':
       return 'consultó una sesión';
+    case 'INFORME_CONSULTADO':
+      return 'consultó un informe';
+    case 'DATOS_PROFESIONALES_ACTUALIZADOS':
+      return 'actualizó sus datos profesionales';
+    case 'INFORME_PDF_DESCARGADO':
+      return detalle.modo === 'descarga'
+        ? `descargó el PDF de un informe (versión ${detalle.version})`
+        : `visualizó el PDF de un informe (versión ${detalle.version})`;
     case 'TIPO_DIAGNOSTICO_CREADO':
       return 'agregó una categoría de tipo de diagnóstico';
     case 'TIPO_DIAGNOSTICO_ACTUALIZADO':
@@ -197,6 +224,12 @@ export function describirAuditoria(registro, usuariosPorId = new Map()) {
       return detalle.activo
         ? 'reactivó una categoría de tipo de diagnóstico'
         : 'desactivó una categoría de tipo de diagnóstico';
+    case 'CONFIG_INFORMES_ACTUALIZADA':
+      return 'actualizó la configuración de informes';
+    case 'LOGO_INFORMES_ACTUALIZADO':
+      return 'cambió el logo de los informes';
+    case 'LOGO_INFORMES_ELIMINADO':
+      return 'eliminó el logo de los informes';
     case 'MENOR_CREADO':
     case 'MENOR_ACTUALIZADO':
     case 'MENOR_ESTADO':
@@ -207,6 +240,9 @@ export function describirAuditoria(registro, usuariosPorId = new Map()) {
     case 'DIAGNOSTICO_ACTUALIZADO':
     case 'SESION_CREADA':
     case 'SESION_ACTUALIZADA':
+    case 'INFORME_CREADO':
+    case 'INFORME_ACTUALIZADO':
+    case 'INFORME_PDF_GENERADO':
       return `${describirHistorial(registro)} de un expediente`;
     default:
       return accion;

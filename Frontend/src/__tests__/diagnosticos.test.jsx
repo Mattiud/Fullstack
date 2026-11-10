@@ -17,6 +17,8 @@ jest.mock('../api/audit');
 jest.mock('../api/menores');
 jest.mock('../api/diagnosticos');
 jest.mock('../api/sesiones');
+// La ficha también pide los informes del menor (psicopedagogo).
+jest.mock('../api/informes');
 
 // Datos ficticios.
 const menorFicticio = {

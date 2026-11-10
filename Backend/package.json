@@ -36,6 +36,7 @@
     "mammoth": "^1.13.0",
     "mongoose": "^9.9.4",
     "multer": "^2.4.0",
+    "pdfkit": "^0.17.2",
     "sanitize-html": "2.18.1",
     "word-extractor": "^1.0.4"
   },

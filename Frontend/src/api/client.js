@@ -39,6 +39,20 @@ export function mensajeDeError(
   return porDefecto;
 }
 
+// Con responseType arraybuffer, los errores JSON del servidor también llegan como
+// bytes: se decodifican para poder mostrar su mensaje.
+export function decodificarError(error) {
+  const datos = error.response?.data;
+  if (datos instanceof ArrayBuffer) {
+    try {
+      error.response.data = JSON.parse(new TextDecoder().decode(datos));
+    } catch {
+      error.response.data = {};
+    }
+  }
+  return error;
+}
+
 export function erroresDeCampos(error) {
   return error?.response?.data?.detalles ?? {};
 }

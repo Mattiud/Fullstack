@@ -479,3 +479,137 @@ describe('Control de acceso', () => {
     expect(await Sesion.countDocuments()).toBe(1);
   });
 });
+
+describe('Calendario', () => {
+  const calendario = (agent, consulta) =>
+    agent.get('/api/sesiones/calendario').query(consulta);
+
+  test('devuelve las sesiones del período en orden, una vez cada una y sin contenido', async () => {
+    await registrar({ fecha: enDias(2), horaInicio: '11:00', horaFin: '11:45' });
+    const primera = await registrar({
+      fecha: enDias(2),
+      horaInicio: '09:00',
+      horaFin: '09:45',
+    });
+    await registrar({ fecha: enDias(1) });
+    await registrar({ fecha: enDias(20) });
+
+    const res = await calendario(psicoAgent, { desde: enDias(0), hasta: enDias(6) });
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ desde: enDias(0), hasta: enDias(6) });
+    expect(res.body.sesiones.map((s) => [s.fecha.slice(0, 10), s.horaInicio])).toEqual([
+      [enDias(1), '09:00'],
+      [enDias(2), '09:00'],
+      [enDias(2), '11:00'],
+    ]);
+    const ids = res.body.sesiones.map((s) => s._id);
+    expect(new Set(ids).size).toBe(ids.length);
+
+    const bloque = res.body.sesiones.find((s) => s._id === primera._id);
+    expect(bloque).toMatchObject({
+      menor: { _id: menor._id, nombre: 'Menor Ficticio Uno' },
+      profesional: { _id: String(psico._id) },
+      primerObjetivo: 'Objetivo ficticio uno',
+      totalObjetivos: 2,
+      totalActividades: 2,
+      estado: 'planificada',
+    });
+    expect(bloque).not.toHaveProperty('objetivos');
+    expect(bloque).not.toHaveProperty('actividades');
+    expect(bloque).not.toHaveProperty('observaciones');
+  });
+
+  test('incluye los borradores con fecha y el filtro «Sin planificar» muestra solo esos', async () => {
+    await registrar({ fecha: enDias(1) });
+    await psicoAgent.post(ruta()).send({ estado: 'borrador', fecha: enDias(2) });
+    // Sin fecha no se puede ubicar en el calendario.
+    await psicoAgent.post(ruta()).send({ estado: 'borrador', horaInicio: '10:00' });
+
+    const todos = await calendario(psicoAgent, { desde: enDias(0), hasta: enDias(6) });
+    expect(todos.body.sesiones.map((s) => s.estado)).toEqual(['planificada', 'borrador']);
+
+    const borradores = await calendario(psicoAgent, {
+      desde: enDias(0),
+      hasta: enDias(6),
+      borradores: 'true',
+    });
+    expect(borradores.body.sesiones.map((s) => s.estado)).toEqual(['borrador']);
+  });
+
+  test('muestra a cada psicopedagogo solo sus menores y al administrador todos', async () => {
+    await registrar({ fecha: enDias(1) });
+    await registrar({ fecha: enDias(1) }, otroAgent, otroMenor._id);
+    const periodo = { desde: enDias(0), hasta: enDias(6) };
+
+    expect((await calendario(psicoAgent, periodo)).body.sesiones).toHaveLength(1);
+    expect((await calendario(otroAgent, periodo)).body.sesiones).toHaveLength(1);
+    expect((await calendario(adminAgent, periodo)).body.sesiones).toHaveLength(2);
+  });
+
+  test('filtra por menor y por profesional responsable', async () => {
+    await adminAgent
+      .put(`/api/menores/${menor._id}/profesionales`)
+      .send({ profesionales: [String(psico._id), String(otroPsico._id)] });
+    await registrar({ fecha: enDias(1) });
+    await registrar({ fecha: enDias(2) }, otroAgent);
+    await registrar({ fecha: enDias(3) }, otroAgent, otroMenor._id);
+    const periodo = { desde: enDias(0), hasta: enDias(6) };
+
+    const delMenor = await calendario(otroAgent, { ...periodo, menor: menor._id });
+    expect(delMenor.body.sesiones).toHaveLength(2);
+    expect(delMenor.body.sesiones.every((s) => s.menor._id === menor._id)).toBe(true);
+
+    const mias = await calendario(psicoAgent, { ...periodo, mias: 'true' });
+    expect(mias.body.sesiones).toHaveLength(1);
+    expect(mias.body.sesiones[0].profesional._id).toBe(String(psico._id));
+  });
+
+  test('no permite filtrar por un menor no asignado', async () => {
+    await registrar({ fecha: enDias(1) }, otroAgent, otroMenor._id);
+    const periodo = { desde: enDias(0), hasta: enDias(6) };
+
+    const ajeno = await calendario(psicoAgent, { ...periodo, menor: otroMenor._id });
+    expect(ajeno.status).toBe(403);
+    expect(ajeno.body).not.toHaveProperty('sesiones');
+    expect(
+      await buscarAuditoria({ accion: 'ACCESO_DENEGADO', recursoId: otroMenor._id })
+    ).toHaveLength(1);
+    expect((await calendario(psicoAgent, { ...periodo, menor: 'abc' })).status).toBe(400);
+    expect(
+      (await calendario(psicoAgent, { ...periodo, menor: '64b000000000000000000000' })).status
+    ).toBe(404);
+  });
+
+  test('valida el período', async () => {
+    const casos = [
+      {},
+      { desde: enDias(0) },
+      { desde: '02/11/2026', hasta: enDias(6) },
+      { desde: enDias(6), hasta: enDias(0) },
+      { desde: enDias(0), hasta: enDias(42) },
+    ];
+    for (const consulta of casos) {
+      expect((await calendario(psicoAgent, consulta)).status).toBe(400);
+    }
+    expect((await calendario(psicoAgent, { desde: enDias(0), hasta: enDias(41) })).status).toBe(
+      200
+    );
+  });
+
+  test('una sesión editada aparece en su nueva fecha y no en la anterior', async () => {
+    const sesion = await registrar({ fecha: enDias(1) });
+    expect((await editar(sesion, { fecha: enDias(10) })).status).toBe(200);
+
+    const antes = await calendario(psicoAgent, { desde: enDias(0), hasta: enDias(6) });
+    const despues = await calendario(psicoAgent, { desde: enDias(7), hasta: enDias(13) });
+    expect(antes.body.sesiones).toHaveLength(0);
+    expect(despues.body.sesiones.map((s) => s._id)).toEqual([sesion._id]);
+  });
+
+  test('requiere una sesión iniciada', async () => {
+    const res = await request(app)
+      .get('/api/sesiones/calendario')
+      .query({ desde: enDias(0), hasta: enDias(6) });
+    expect(res.status).toBe(401);
+  });
+});

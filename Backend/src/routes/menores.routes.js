@@ -7,6 +7,7 @@ const Menor = require('../models/Menor');
 const documentosRoutes = require('./documentos.routes');
 const diagnosticosMenorRoutes = require('./diagnosticosMenor.routes');
 const sesionesMenorRoutes = require('./sesionesMenor.routes');
+const informesMenorRoutes = require('./informesMenor.routes');
 const {
   listarMenores,
   buscarMenores,
@@ -47,5 +48,12 @@ router.get(
 router.use('/:menorId/documentos', accesoMenor, documentosRoutes);
 router.use('/:menorId/diagnosticos', accesoMenor, diagnosticosMenorRoutes);
 router.use('/:menorId/sesiones', accesoMenor, sesionesMenorRoutes);
+// Solo el psicopedagogo emite informes; el administrador no accede a ellos.
+router.use(
+  '/:menorId/informes',
+  authorize(PERMISSIONS.INFORMES_EMITIR),
+  accesoMenor,
+  informesMenorRoutes
+);
 
 module.exports = router;

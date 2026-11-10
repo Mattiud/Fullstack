@@ -7,6 +7,8 @@ const User = require('../src/models/User');
 const AuditLog = require('../src/models/AuditLog');
 const { ROLES } = require('../src/config/roles');
 const { hashPassword } = require('../src/utils/password');
+const { ipKeyGenerator } = require('express-rate-limit');
+const { apiLimiter } = require('../src/middleware/rateLimiters');
 
 // Datos ficticios: nunca se usan datos reales en las pruebas.
 const PASSWORD = 'ClavePrueba123';
@@ -21,6 +23,9 @@ function usarBaseDeDatosDePrueba() {
     await User.init();
   });
   afterEach(async () => {
+    // Cada prueba parte con el límite general de la API sin consumir: un archivo de
+    // pruebas extenso supera las 500 solicitudes por IP de la ventana de 15 minutos.
+    for (const ip of ['127.0.0.1', '::1']) apiLimiter.resetKey(ipKeyGenerator(ip));
     // Incluye las colecciones de GridFS, que no pertenecen a ningún modelo.
     for (const collection of await mongoose.connection.db.collections()) {
       await collection.deleteMany({});

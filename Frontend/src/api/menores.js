@@ -1,4 +1,4 @@
-import client from './client';
+import client, { decodificarError } from './client';
 
 export async function listarMenores({
   q = '',
@@ -73,20 +73,6 @@ export async function subirDocumento(menorId, archivo, onProgreso) {
     }
   );
   return data.documento;
-}
-
-// Con responseType arraybuffer, los errores JSON del servidor también llegan como
-// bytes: se decodifican para poder mostrar su mensaje.
-function decodificarError(error) {
-  const datos = error.response?.data;
-  if (datos instanceof ArrayBuffer) {
-    try {
-      error.response.data = JSON.parse(new TextDecoder().decode(datos));
-    } catch {
-      error.response.data = {};
-    }
-  }
-  return error;
 }
 
 // Devuelve { formato: 'pdf', datos: ArrayBuffer } o { formato: 'html', html }.

@@ -20,7 +20,16 @@ const Zona = styled.div`
 `;
 
 // Zona "arrastrar archivos aquí" del mockup 1f, con selector de archivo accesible.
-export default function ZonaCarga({ limites, subiendo, progreso, onArchivo }) {
+// Los textos se pueden adaptar para otros archivos (por ejemplo, el logo de informes).
+export default function ZonaCarga({
+  limites,
+  subiendo,
+  progreso,
+  onArchivo,
+  etiqueta = 'Adjuntar documento',
+  textoSubiendo = 'Subiendo documento…',
+  textoAyuda,
+}) {
   const id = useId();
   const entradaRef = useRef(null);
   const [activa, setActiva] = useState(false);
@@ -46,7 +55,9 @@ export default function ZonaCarga({ limites, subiendo, progreso, onArchivo }) {
       }}
     >
       {subiendo ? (
-        <span role="status">Subiendo documento… {progreso}%</span>
+        <span role="status">
+          {textoSubiendo} {progreso}%
+        </span>
       ) : (
         <>
           <span>Arrastrar archivos aquí</span>
@@ -64,12 +75,13 @@ export default function ZonaCarga({ limites, subiendo, progreso, onArchivo }) {
         id={id}
         type="file"
         hidden
-        aria-label="Adjuntar documento"
+        aria-label={etiqueta}
         accept={[...limites.extensiones, ...limites.mimes].join(',')}
         onChange={(evento) => recibir(evento.target.files)}
       />
       <TextoAyuda>
-        PDF, DOC o DOCX · máximo {formatearTamano(limites.maxBytes)}
+        {textoAyuda ??
+          `PDF, DOC o DOCX · máximo ${formatearTamano(limites.maxBytes)}`}
       </TextoAyuda>
     </Zona>
   );

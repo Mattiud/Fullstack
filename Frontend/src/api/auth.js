@@ -20,6 +20,12 @@ export async function obtenerSesion() {
   }
 }
 
+// Datos que el psicopedagogo define para el pie de sus informes PDF.
+export async function guardarDatosProfesionales(datos) {
+  const { data } = await client.put('/auth/datos-profesionales', datos);
+  return data.usuario;
+}
+
 export async function cambiarPassword(passwordActual, passwordNueva) {
   const { data } = await client.post('/auth/password', {
     passwordActual,

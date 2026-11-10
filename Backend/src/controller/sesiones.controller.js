@@ -5,7 +5,7 @@ const Menor = require('../models/Menor');
 const { AUDIT_ACTIONS } = require('../models/AuditLog');
 const { ESTADOS_SESION, ASISTENCIAS, LIMITES } = Sesion;
 const { ESTADOS_DIAGNOSTICO } = Diagnostico;
-const { filtroMenoresAccesibles } = require('../middleware/menorAccess');
+const { filtroMenoresAccesibles, verificarAccesoMenor } = require('../middleware/menorAccess');
 const HttpError = require('../utils/httpError');
 const { registrarAuditoria } = require('../utils/audit');
 const {
@@ -38,6 +38,10 @@ const CAMPOS_EDITABLES = Object.freeze([
 ]);
 
 const VISTAS = Object.freeze(['proximas', 'anteriores', 'borradores']);
+
+// Período máximo del calendario: la grilla mensual de 6 semanas.
+const MAX_DIAS_CALENDARIO = 42;
+const UN_DIA_MS = 24 * 60 * 60 * 1000;
 
 const MENSAJE_DESACTUALIZADO =
   'La sesión fue modificada por otra persona. Recargue la página para ver la versión actual.';
@@ -431,6 +435,56 @@ async function listarSesiones(req, res) {
   res.json({ sesiones: sesiones.map(resumen), total, pagina, limite: POR_PAGINA, vista });
 }
 
+// Calendario (mockup 1i): todas las sesiones con fecha del período indicado, sin
+// paginar, de los menores a los que se tiene acceso. Incluye el primer objetivo para
+// identificar el bloque, pero no las observaciones ni el resto del contenido.
+async function calendarioSesiones(req, res) {
+  const desde = parsearFecha(req.query.desde);
+  const hasta = parsearFecha(req.query.hasta);
+  const errores = {
+    desde: !desde && 'Indique una fecha de inicio válida (AAAA-MM-DD)',
+    hasta: !hasta && 'Indique una fecha de término válida (AAAA-MM-DD)',
+  };
+  if (desde && hasta) {
+    const dias = (hasta - desde) / UN_DIA_MS + 1;
+    if (dias < 1) errores.hasta = 'La fecha de término no puede ser anterior a la de inicio';
+    else if (dias > MAX_DIAS_CALENDARIO) {
+      errores.hasta = `El período admite como máximo ${MAX_DIAS_CALENDARIO} días`;
+    }
+  }
+  exigirSinErrores(errores);
+
+  const filtro = { fecha: mongoose.trusted({ $gte: desde, $lte: hasta }) };
+  if (req.query.menor !== undefined) {
+    // Un menor no asignado responde 403 y queda en la auditoría, como su expediente.
+    filtro.menor = await verificarAccesoMenor(req, Menor, req.query.menor);
+  } else {
+    const accesibles = filtroMenoresAccesibles(req.user);
+    if (Object.keys(accesibles).length > 0) {
+      const menores = await Menor.find(accesibles).distinct('_id');
+      filtro.menor = mongoose.trusted({ $in: menores });
+    }
+  }
+  if (req.query.mias === 'true') filtro.profesional = req.user._id;
+  if (req.query.borradores === 'true') filtro.estado = ESTADOS_SESION.BORRADOR;
+
+  const sesiones = await Sesion.find(filtro)
+    .select(`${CAMPOS_RESUMEN} objetivos.descripcion`)
+    .sort({ fecha: 1, horaInicio: 1, createdAt: 1 })
+    .populate('menor', 'nombre')
+    .populate('profesional', DATOS_AUTOR)
+    .lean();
+
+  res.json({
+    sesiones: sesiones.map((sesion) => ({
+      ...resumen(sesion),
+      primerObjetivo: sesion.objetivos?.[0]?.descripcion ?? null,
+    })),
+    desde: fechaISO(desde),
+    hasta: fechaISO(hasta),
+  });
+}
+
 // Contexto para registrar una sesión nueva: la última sesión planificada hasta hoy.
 async function contextoSesion(req, res) {
   const { anterior } = await contextoCronologico(req.menorId, null);
@@ -522,6 +576,7 @@ async function actualizarSesion(req, res) {
 
 module.exports = {
   listarSesiones,
+  calendarioSesiones,
   listarSesionesMenor,
   contextoSesion,
   crearSesion,
