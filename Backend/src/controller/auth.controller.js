@@ -79,7 +79,13 @@ async function logout(req, res) {
 }
 
 function me(req, res) {
-  res.json({ usuario: serializeUser(req.user) });
+  res.json({ usuario: serializeUser(req.user), sesionVence: req.sesionVence });
+}
+
+// Actividad del usuario en la pantalla sin otras solicitudes (por ejemplo, al redactar
+// un informe extenso). authenticate() ya renueva la sesión si corresponde.
+function registrarActividad(req, res) {
+  res.status(204).end();
 }
 
 async function cambiarPassword(req, res) {
@@ -125,4 +131,4 @@ async function cambiarPassword(req, res) {
   res.json({ usuario: serializeUser(user) });
 }
 
-module.exports = { login, logout, me, cambiarPassword };
+module.exports = { login, logout, me, registrarActividad, cambiarPassword };

@@ -351,6 +351,28 @@ async function listarInformes(req, res) {
     const menores = await Menor.find(accesibles).distinct('_id');
     filtro.menor = mongoose.trusted({ $in: menores });
   }
+  // Pendientes: sin PDF o modificados después del último PDF. Las condiciones las arma
+  // el servidor (sin datos del cliente), por eso cada operador se marca como confiable.
+  if (req.query.estado === 'pendientes') {
+    filtro.$or = [
+      { 'pdfs.0': mongoose.trusted({ $exists: false }) },
+      {
+        $expr: mongoose.trusted({
+          $gt: ['$contenidoActualizadoEn', { $max: '$pdfs.fecha' }],
+        }),
+      },
+    ];
+  }
+  // Mes de la fecha del informe (AAAA-MM).
+  if (req.query.mes !== undefined) {
+    const coincidencia = /^(\d{4})-(0[1-9]|1[0-2])$/.exec(String(req.query.mes));
+    if (!coincidencia) throw new HttpError(400, 'Indique el mes en formato AAAA-MM');
+    const [anio, mes] = [Number(coincidencia[1]), Number(coincidencia[2])];
+    filtro.fechaInforme = mongoose.trusted({
+      $gte: new Date(Date.UTC(anio, mes - 1, 1)),
+      $lt: new Date(Date.UTC(anio, mes, 1)),
+    });
+  }
 
   const [informes, total] = await Promise.all([
     Informe.find(filtro)

@@ -32,7 +32,13 @@ if (!Number.isFinite(documentosMaxMb) || documentosMaxMb <= 0 || documentosMaxMb
   throw new Error('DOCUMENTOS_MAX_MB debe ser un número entre 1 y 25');
 }
 
-const SESSION_DURATION_MS = 8 * 60 * 60 * 1000;
+const UNA_HORA_MS = 60 * 60 * 1000;
+// La sesión se cierra tras 12 h sin actividad: cada actividad del usuario vuelve a
+// emitir el token y la cookie con 12 h más (utils/session.js, middleware/authenticate.js).
+const INACTIVIDAD_MAXIMA_MS = 12 * UNA_HORA_MS;
+// La renovación ocurre como máximo una vez por hora; por eso el cierre se produce entre
+// 11 y 12 h después de la última actividad.
+const RENOVACION_MINIMA_MS = UNA_HORA_MS;
 
 module.exports = {
   env: NODE_ENV,
@@ -41,7 +47,8 @@ module.exports = {
   port: Number(process.env.PORT) || 4000,
   mongodbUri: process.env.MONGODB_URI,
   jwtSecret,
-  sessionDurationMs: SESSION_DURATION_MS,
+  inactividadMaximaMs: INACTIVIDAD_MAXIMA_MS,
+  renovacionMinimaMs: RENOVACION_MINIMA_MS,
   clientOrigin,
   // Número de proxies delante del servidor (Render), necesario para obtener la IP real.
   trustProxy: Number(process.env.TRUST_PROXY ?? (isProduction ? 1 : 0)),

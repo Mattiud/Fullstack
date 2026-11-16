@@ -9,21 +9,51 @@ const client = axios.create({
 });
 
 let onUnauthorized = null;
+let onVencimiento = null;
 
 // Permite al contexto de autenticación cerrar la sesión local cuando el servidor
-// responde 401 (sesión vencida, revocada o cuenta deshabilitada).
+// responde 401 (sesión vencida, revocada o cuenta deshabilitada). Recibe el código del
+// rechazo ('SESION_EXPIRADA' cuando la sesión se cerró por inactividad).
 export function setUnauthorizedHandler(handler) {
   onUnauthorized = handler;
 }
 
+// Recibe el vencimiento vigente de la sesión que informa el servidor en cada respuesta.
+export function setVencimientoHandler(handler) {
+  onVencimiento = handler;
+}
+
+// Marca una solicitud como automática: valida la sesión, pero no cuenta como actividad
+// del usuario (no la renueva).
+export const SOLICITUD_AUTOMATICA = { 'X-Solicitud-Automatica': '1' };
+
 const RUTAS_SIN_AVISO = ['/auth/login', '/auth/me'];
 
+// Comunica un vencimiento informado por el servidor (se exporta para las pruebas).
+export function registrarVencimiento(vence) {
+  if (vence) onVencimiento?.(vence);
+}
+
+function informarVencimiento(response) {
+  registrarVencimiento(response?.headers?.['x-sesion-vence']);
+}
+
 client.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    informarVencimiento(response);
+    return response;
+  },
   (error) => {
+    informarVencimiento(error.response);
     const ruta = error.config?.url;
-    if (error.response?.status === 401 && !RUTAS_SIN_AVISO.includes(ruta)) {
-      onUnauthorized?.();
+    const codigo = error.response?.data?.codigo;
+    // El cierre por inactividad se informa siempre, también al comprobar la sesión
+    // al abrir la aplicación.
+    if (
+      error.response?.status === 401 &&
+      (!RUTAS_SIN_AVISO.includes(ruta) || codigo === 'SESION_EXPIRADA')
+    ) {
+      onUnauthorized?.(codigo);
     }
     return Promise.reject(error);
   }

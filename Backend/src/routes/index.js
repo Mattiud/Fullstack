@@ -8,6 +8,7 @@ const tiposDiagnosticoRoutes = require('./tiposDiagnostico.routes');
 const sesionesRoutes = require('./sesiones.routes');
 const configuracionInformesRoutes = require('./configuracionInformes.routes');
 const informesRoutes = require('./informes.routes');
+const actividadRoutes = require('./actividad.routes');
 
 const router = express.Router();
 
@@ -20,5 +21,6 @@ router.use('/tipos-diagnostico', tiposDiagnosticoRoutes);
 router.use('/sesiones', sesionesRoutes);
 router.use('/configuracion-informes', configuracionInformesRoutes);
 router.use('/informes', informesRoutes);
+router.use('/actividad-reciente', actividadRoutes);
 
 module.exports = router;

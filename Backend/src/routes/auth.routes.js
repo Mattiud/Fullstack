@@ -5,7 +5,13 @@ const {
   loginCuentaLimiter,
   cambioPasswordLimiter,
 } = require('../middleware/rateLimiters');
-const { login, logout, me, cambiarPassword } = require('../controller/auth.controller');
+const {
+  login,
+  logout,
+  me,
+  registrarActividad,
+  cambiarPassword,
+} = require('../controller/auth.controller');
 const authorize = require('../middleware/authorize');
 const { PERMISSIONS } = require('../config/roles');
 const { actualizarDatosProfesionales } = require('../controller/datosProfesionales.controller');
@@ -15,6 +21,8 @@ const router = express.Router();
 router.post('/login', loginIpLimiter, loginCuentaLimiter, login);
 router.post('/logout', logout);
 router.get('/me', authenticate({ auditarSinSesion: false }), me);
+// Actividad en la pantalla: mantiene abierta la sesión (cierre tras 12 h de inactividad).
+router.post('/actividad', authenticate(), registrarActividad);
 router.post('/password', authenticate(), cambioPasswordLimiter, cambiarPassword);
 // Datos para el pie de los informes PDF: solo quien emite informes, sobre su propia cuenta.
 router.put(

@@ -41,6 +41,23 @@ describe('POST /api/auth/login', () => {
     expect(await buscarAuditoria({ accion: 'LOGIN_EXITOSO', usuario: user._id })).toHaveLength(1);
   });
 
+  test.each([ROLES.ADMIN, ROLES.PSICOPEDAGOGO])(
+    'la sesión de %s dura 12 horas (token y cookie)',
+    async (rol) => {
+      const user = await crearUsuario({ rol });
+      const res = await request(app)
+        .post('/api/auth/login')
+        .send({ email: user.email, password: PASSWORD });
+
+      const doceHoras = 12 * 60 * 60;
+      const cookie = cookieDeSesion(res);
+      expect(cookie).toMatch(new RegExp(`Max-Age=${doceHoras}(;|$)`));
+      const token = cookie.split(';')[0].split('=')[1];
+      const { iat, exp } = jwt.decode(token);
+      expect(exp - iat).toBe(doceHoras);
+    }
+  );
+
   test('normaliza el correo antes de buscar la cuenta', async () => {
     const user = await crearUsuario();
     const res = await request(app)
@@ -173,6 +190,103 @@ describe('Sesión', () => {
     expect(res.status).toBe(401);
     const [registro] = await buscarAuditoria({ accion: 'ACCESO_NO_AUTENTICADO' });
     expect(registro.detalle.motivo).toBe('cuenta_deshabilitada');
+  });
+});
+
+describe('Cierre de sesión por inactividad (12 h)', () => {
+  const HORA = 60 * 60;
+  const DOCE_HORAS = 12 * HORA;
+
+  // Token firmado como lo emite el servidor, con la antigüedad indicada.
+  function tokenEmitidoHace(user, segundos, duracion = DOCE_HORAS) {
+    const iat = Math.floor(Date.now() / 1000) - segundos;
+    return jwt.sign({ sv: user.versionSesion, iat, exp: iat + duracion }, process.env.JWT_SECRET, {
+      subject: String(user._id),
+    });
+  }
+
+  const conCookie = (token) => `sgp_session=${token}`;
+
+  function tokenDe(res) {
+    const cookie = cookieDeSesion(res);
+    return cookie ? cookie.split(';')[0].split('=')[1] : null;
+  }
+
+  test.each([ROLES.ADMIN, ROLES.PSICOPEDAGOGO])(
+    'la actividad de %s renueva la sesión por 12 h más desde ese momento',
+    async (rol) => {
+      const user = await crearUsuario({ rol });
+      const anterior = tokenEmitidoHace(user, 2 * HORA);
+
+      const res = await request(app).get('/api/menores').set('Cookie', conCookie(anterior));
+      expect(res.status).toBe(200);
+      const renovado = tokenDe(res);
+      expect(renovado).toBeTruthy();
+      const { exp } = jwt.decode(renovado);
+      const ahora = Math.floor(Date.now() / 1000);
+      expect(exp).toBeGreaterThanOrEqual(ahora + DOCE_HORAS - 5);
+      expect(cookieDeSesion(res)).toMatch(new RegExp(`Max-Age=${DOCE_HORAS}(;|$)`));
+      expect(res.headers['x-sesion-vence']).toBe(new Date(exp * 1000).toISOString());
+
+      // El token renovado sigue dando acceso.
+      expect(
+        (await request(app).get('/api/auth/me').set('Cookie', conCookie(renovado))).status
+      ).toBe(200);
+    }
+  );
+
+  test('se renueva como máximo una vez por hora', async () => {
+    const user = await crearUsuario();
+    const reciente = tokenEmitidoHace(user, 59 * 60);
+    const res = await request(app).get('/api/menores').set('Cookie', conCookie(reciente));
+    expect(res.status).toBe(200);
+    expect(tokenDe(res)).toBeNull();
+    expect(res.headers['x-sesion-vence']).toBe(
+      new Date(jwt.decode(reciente).exp * 1000).toISOString()
+    );
+  });
+
+  test('las comprobaciones automáticas no cuentan como actividad', async () => {
+    const user = await crearUsuario();
+    const anterior = tokenEmitidoHace(user, 5 * HORA);
+    const res = await request(app)
+      .get('/api/auth/me')
+      .set('Cookie', conCookie(anterior))
+      .set('X-Solicitud-Automatica', '1');
+    expect(res.status).toBe(200);
+    expect(tokenDe(res)).toBeNull();
+    const vence = new Date(jwt.decode(anterior).exp * 1000).toISOString();
+    expect(res.body.sesionVence).toBe(vence);
+    expect(res.headers['x-sesion-vence']).toBe(vence);
+  });
+
+  test('tras 12 h sin actividad el backend rechaza la sesión', async () => {
+    const user = await crearUsuario({ rol: ROLES.PSICOPEDAGOGO });
+    const vencido = tokenEmitidoHace(user, DOCE_HORAS + 60);
+    for (const ruta of ['/api/menores', '/api/auth/me', '/api/informes']) {
+      const res = await request(app).get(ruta).set('Cookie', conCookie(vencido));
+      expect(res.status).toBe(401);
+      expect(res.body.codigo).toBe('SESION_EXPIRADA');
+      expect(cookieDeSesion(res)).toMatch(/Expires=Thu, 01 Jan 1970/);
+    }
+    // Una solicitud automática tampoco revive la sesión.
+    const automatica = await request(app)
+      .get('/api/auth/me')
+      .set('Cookie', conCookie(vencido))
+      .set('X-Solicitud-Automatica', '1');
+    expect(automatica.status).toBe(401);
+  });
+
+  test('POST /api/auth/actividad mantiene abierta la sesión', async () => {
+    const user = await crearUsuario({ rol: ROLES.ADMIN });
+    const anterior = tokenEmitidoHace(user, 3 * HORA);
+    const res = await request(app)
+      .post('/api/auth/actividad')
+      .set('Cookie', conCookie(anterior));
+    expect(res.status).toBe(204);
+    expect(jwt.decode(tokenDe(res)).exp).toBeGreaterThan(jwt.decode(anterior).exp);
+
+    expect((await request(app).post('/api/auth/actividad')).status).toBe(401);
   });
 });
 

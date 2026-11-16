@@ -804,6 +804,38 @@ describe('Datos profesionales', () => {
   });
 });
 
+describe('Filtros del listado general', () => {
+  test('pendientes: sin PDF o modificados después del último PDF', async () => {
+    const borrador = await crear({ fechaInforme: '2026-11-02' });
+    const emitido = (await generar(await crear(CONTENIDO_COMPLETO))).body.informe;
+    const modificado = (await generar(await crear(CONTENIDO_COMPLETO))).body.informe;
+    await editar(modificado, { conclusion: 'Cambio posterior al PDF.' });
+    // Un informe de un menor ajeno no se cuenta.
+    await otroAgent
+      .post(`/api/menores/${otroMenor._id}/informes`)
+      .send({ fechaInforme: '2026-11-02' });
+
+    const res = await psicoAgent.get('/api/informes?estado=pendientes');
+    expect(res.status).toBe(200);
+    expect(res.body.total).toBe(2);
+    expect(res.body.informes.map((i) => i._id).sort()).toEqual(
+      [borrador._id, modificado._id].sort()
+    );
+    expect(res.body.informes.map((i) => i._id)).not.toContain(emitido._id);
+  });
+
+  test('mes: según la fecha del informe', async () => {
+    const noviembre = await crear({ fechaInforme: '2026-11-02' });
+    await crear({ fechaInforme: '2026-10-31' });
+    const res = await psicoAgent.get('/api/informes?mes=2026-11');
+    expect(res.body.total).toBe(1);
+    expect(res.body.informes[0]._id).toBe(noviembre._id);
+    expect((await psicoAgent.get('/api/informes?mes=2026-13')).status).toBe(400);
+    expect((await psicoAgent.get('/api/informes?mes=nov')).status).toBe(400);
+    expect((await adminAgent.get('/api/informes?mes=2026-11')).status).toBe(403);
+  });
+});
+
 describe('Historial del menor', () => {
   test('registra la creación, la edición y el PDF sin el contenido', async () => {
     const informe = await crear(CONTENIDO_COMPLETO);

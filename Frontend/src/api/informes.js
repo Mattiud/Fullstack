@@ -3,8 +3,13 @@ import client, { decodificarError } from './client';
 const ruta = (menorId) => `/menores/${menorId}/informes`;
 
 // Listado general: solo los informes de los menores a los que se tiene acceso.
-export async function listarInformes({ pagina = 1 } = {}) {
-  const { data } = await client.get('/informes', { params: { pagina } });
+// Filtros opcionales: estado 'pendientes' (sin PDF o con PDF desactualizado) y mes
+// (AAAA-MM, según la fecha del informe).
+export async function listarInformes({ pagina = 1, estado, mes } = {}) {
+  const params = { pagina };
+  if (estado) params.estado = estado;
+  if (mes) params.mes = mes;
+  const { data } = await client.get('/informes', { params });
   return data;
 }
 

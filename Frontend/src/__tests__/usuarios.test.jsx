@@ -13,6 +13,12 @@ import {
 jest.mock('../api/auth');
 jest.mock('../api/users');
 jest.mock('../api/audit');
+// API que consulta el panel de inicio.
+jest.mock('../api/menores');
+jest.mock('../api/diagnosticos');
+jest.mock('../api/sesiones');
+jest.mock('../api/informes');
+jest.mock('../api/actividad');
 
 describe('Restricción por rol', () => {
   test('el psicopedagogo no ve la gestión de usuarios ni puede abrirla por URL', async () => {

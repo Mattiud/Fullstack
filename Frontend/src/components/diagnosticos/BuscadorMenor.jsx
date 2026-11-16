@@ -80,6 +80,9 @@ export default function BuscadorMenor({
   onSeleccionar,
   error,
   etiqueta = 'Menor *',
+  // Para usos compactos (buscador del inicio): etiqueta solo para lectores de pantalla.
+  etiquetaOculta = false,
+  placeholder = 'Buscar por nombre o RUT',
 }) {
   const id = useId();
   const [texto, setTexto] = useState('');
@@ -187,14 +190,19 @@ export default function BuscadorMenor({
 
   return (
     <Campo>
-      <Etiqueta htmlFor={`${id}-entrada`}>{etiqueta}</Etiqueta>
+      <Etiqueta
+        htmlFor={`${id}-entrada`}
+        className={etiquetaOculta ? 'sr-only' : undefined}
+      >
+        {etiqueta}
+      </Etiqueta>
       <Entrada
         id={`${id}-entrada`}
         type="text"
         role="combobox"
         autoComplete="off"
         autoFocus={enfocar}
-        placeholder="Buscar por nombre o RUT"
+        placeholder={placeholder}
         aria-autocomplete="list"
         aria-expanded={mostrarLista}
         aria-controls={idLista}

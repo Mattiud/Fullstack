@@ -2,7 +2,14 @@ const User = require('../models/User');
 const { AUDIT_ACTIONS } = require('../models/AuditLog');
 const HttpError = require('../utils/httpError');
 const { registrarAuditoria, rutaDe } = require('../utils/audit');
-const { readSessionToken, clearSessionCookie } = require('../utils/session');
+const config = require('../config/env');
+const {
+  readSessionToken,
+  clearSessionCookie,
+  setSessionCookie,
+  esSolicitudAutomatica,
+  ENCABEZADO_VENCIMIENTO,
+} = require('../utils/session');
 
 function motivoRechazo(user, payload) {
   if (!user) return 'usuario_inexistente';
@@ -30,7 +37,14 @@ function authenticate({ auditarSinSesion = true } = {}) {
         });
       }
       if (error !== 'sin_sesion') clearSessionCookie(res);
-      throw new HttpError(401, 'Debe iniciar sesión');
+      // El cliente distingue el cierre por inactividad para informarlo al usuario.
+      throw new HttpError(
+        401,
+        error === 'sesion_expirada'
+          ? 'Su sesión se cerró por inactividad. Inicie sesión nuevamente.'
+          : 'Debe iniciar sesión',
+        error === 'sesion_expirada' ? { codigo: 'SESION_EXPIRADA' } : undefined
+      );
     }
 
     const user = await User.findById(payload.sub);
@@ -44,6 +58,18 @@ function authenticate({ auditarSinSesion = true } = {}) {
       });
       clearSessionCookie(res);
       throw new HttpError(401, 'Debe iniciar sesión');
+    }
+
+    // Cierre por inactividad: una solicitud del usuario renueva la sesión (como máximo
+    // una vez por hora); las comprobaciones automáticas del cliente no la renuevan.
+    const renovar =
+      !esSolicitudAutomatica(req) &&
+      Date.now() - payload.iat * 1000 >= config.renovacionMinimaMs;
+    if (renovar) {
+      req.sesionVence = setSessionCookie(res, user);
+    } else {
+      req.sesionVence = new Date(payload.exp * 1000);
+      res.set(ENCABEZADO_VENCIMIENTO, req.sesionVence.toISOString());
     }
 
     req.user = user;

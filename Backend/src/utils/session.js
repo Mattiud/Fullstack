@@ -12,16 +12,31 @@ const cookieOptions = {
   path: '/api',
 };
 
+// Emite (o renueva) la cookie de sesión. El token vence tras el período máximo de
+// inactividad; cada renovación lo extiende desde ese momento. Devuelve el vencimiento.
 function setSessionCookie(res, user) {
   const token = jwt.sign({ sv: user.versionSesion }, config.jwtSecret, {
     algorithm: 'HS256',
     subject: String(user._id),
-    expiresIn: Math.floor(config.sessionDurationMs / 1000),
+    expiresIn: Math.floor(config.inactividadMaximaMs / 1000),
   });
   res.cookie(SESSION_COOKIE, token, {
     ...cookieOptions,
-    maxAge: config.sessionDurationMs,
+    maxAge: config.inactividadMaximaMs,
   });
+  const vence = new Date(jwt.decode(token).exp * 1000);
+  res.set(ENCABEZADO_VENCIMIENTO, vence.toISOString());
+  return vence;
+}
+
+// Encabezados del control de inactividad: el de la respuesta informa el vencimiento
+// vigente; el de la solicitud marca las comprobaciones automáticas del cliente, que no
+// cuentan como actividad.
+const ENCABEZADO_VENCIMIENTO = 'X-Sesion-Vence';
+const ENCABEZADO_AUTOMATICA = 'x-solicitud-automatica';
+
+function esSolicitudAutomatica(req) {
+  return req.get(ENCABEZADO_AUTOMATICA) === '1';
 }
 
 function clearSessionCookie(res) {
@@ -55,7 +70,9 @@ function serializeUser(user) {
 
 module.exports = {
   SESSION_COOKIE,
+  ENCABEZADO_VENCIMIENTO,
   setSessionCookie,
+  esSolicitudAutomatica,
   clearSessionCookie,
   readSessionToken,
   serializeUser,

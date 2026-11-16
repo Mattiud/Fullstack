@@ -15,6 +15,11 @@ export const PERMISOS = {
   HISTORIAL_LEER: 'historial:leer',
 };
 
+// Cierre de sesión por inactividad (igual que Backend/src/config/env.js): la sesión se
+// cierra tras 12 h sin actividad y se renueva como máximo una vez por hora.
+export const INACTIVIDAD_MAXIMA_MS = 12 * 60 * 60 * 1000;
+export const RENOVACION_MINIMA_MS = 60 * 60 * 1000;
+
 export const ROLES = {
   ADMIN: 'admin',
   PSICOPEDAGOGO: 'psicopedagogo',

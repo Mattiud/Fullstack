@@ -40,6 +40,24 @@ describe('Cliente de la API', () => {
     expect(handler).not.toHaveBeenCalled();
   });
 
+  test('un 401 por inactividad se informa con su código, incluso al comprobar la sesión', async () => {
+    const handler = jest.fn();
+    setUnauthorizedHandler(handler);
+    client.defaults.adapter = async (config) => {
+      throw new AxiosError('Error', 'ERR_BAD_REQUEST', config, null, {
+        status: 401,
+        data: { error: 'Sesión cerrada', codigo: 'SESION_EXPIRADA' },
+        headers: {},
+        config,
+      });
+    };
+
+    await expect(client.get('/auth/me')).rejects.toBeInstanceOf(AxiosError);
+    await expect(client.get('/menores')).rejects.toBeInstanceOf(AxiosError);
+    expect(handler).toHaveBeenCalledTimes(2);
+    expect(handler).toHaveBeenCalledWith('SESION_EXPIRADA');
+  });
+
   test('un 403 no cierra la sesión', async () => {
     const handler = jest.fn();
     setUnauthorizedHandler(handler);

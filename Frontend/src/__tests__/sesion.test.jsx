@@ -13,6 +13,12 @@ import {
 jest.mock('../api/auth');
 jest.mock('../api/users');
 jest.mock('../api/audit');
+// API que consulta el panel de inicio.
+jest.mock('../api/menores');
+jest.mock('../api/diagnosticos');
+jest.mock('../api/sesiones');
+jest.mock('../api/informes');
+jest.mock('../api/actividad');
 
 describe('Inicio de sesión', () => {
   beforeEach(() => {
@@ -70,11 +76,24 @@ describe('Inicio de sesión', () => {
     renderApp('/login');
 
     const password = await screen.findByLabelText('Contraseña');
+    await user.type(password, 'ClaveFicticia1');
+    // Oculta: ojo cerrado.
     expect(password).toHaveAttribute('type', 'password');
-    await user.click(screen.getByRole('button', { name: 'Mostrar' }));
+    const boton = screen.getByRole('button', { name: 'Mostrar contraseña' });
+    expect(boton).toHaveAttribute('aria-pressed', 'false');
+    expect(within(boton).getByTestId('ojo-cerrado')).toBeInTheDocument();
+
+    // Visible: ojo abierto, sin perder lo escrito.
+    await user.click(boton);
     expect(password).toHaveAttribute('type', 'text');
-    await user.click(screen.getByRole('button', { name: 'Ocultar' }));
+    expect(password).toHaveValue('ClaveFicticia1');
+    const ocultar = screen.getByRole('button', { name: 'Ocultar contraseña' });
+    expect(ocultar).toHaveAttribute('aria-pressed', 'true');
+    expect(within(ocultar).getByTestId('ojo-abierto')).toBeInTheDocument();
+
+    await user.click(ocultar);
     expect(password).toHaveAttribute('type', 'password');
+    expect(password).toHaveValue('ClaveFicticia1');
   });
 
   test('no ofrece registro público ni recuperación de contraseña', async () => {
@@ -163,7 +182,7 @@ describe('Sesión', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Verificando sesión');
     expect(
       await screen.findByRole('heading', {
-        name: `Hola, ${usuarioPsico.nombre}`,
+        name: 'Panel de inicio',
       })
     ).toBeInTheDocument();
     expect(authApi.obtenerSesion).toHaveBeenCalledTimes(1);
@@ -173,9 +192,7 @@ describe('Sesión', () => {
     authApi.obtenerSesion.mockResolvedValue(usuarioPsico);
     renderApp('/');
 
-    await screen.findByRole('heading', {
-      name: `Hola, ${usuarioPsico.nombre}`,
-    });
+    await screen.findByRole('heading', { name: 'Panel de inicio' });
     expect(window.localStorage).toHaveLength(0);
     expect(window.sessionStorage).toHaveLength(0);
   });
@@ -270,7 +287,7 @@ describe('Contraseña temporal', () => {
     );
     expect(
       await screen.findByRole('heading', {
-        name: `Hola, ${usuarioPsico.nombre}`,
+        name: 'Panel de inicio',
       })
     ).toBeInTheDocument();
   });
