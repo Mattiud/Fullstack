@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import {
   actualizarTipoDiagnostico,
   crearTipoDiagnostico,
+  eliminarTipoDiagnostico,
   listarTiposDiagnostico,
 } from '../../api/diagnosticos';
 import { erroresDeCampos, mensajeDeError } from '../../api/client';
@@ -13,10 +14,11 @@ import EncabezadoPagina, {
   CuerpoPagina,
 } from '../../components/EncabezadoPagina';
 import CampoFormulario from '../../components/CampoFormulario';
+import Icono from '../../components/Icono';
 import {
   Alerta,
   Boton,
-  BotonEnlace,
+  BotonAccion,
   Cargando,
   Chip,
   ContenedorTabla,
@@ -24,6 +26,7 @@ import {
   EncabezadoPanel,
   Entrada,
   ErrorCampo,
+  GrupoAcciones,
   Panel,
   Tabla,
   TextoAyuda,
@@ -45,11 +48,7 @@ const FormularioAgregar = styled.form`
   }
 `;
 
-const Acciones = styled.div`
-  display: flex;
-  gap: 6px 14px;
-  flex-wrap: wrap;
-`;
+const Acciones = GrupoAcciones;
 
 const EdicionNombre = styled.div`
   display: grid;
@@ -154,6 +153,28 @@ export default function TiposDiagnostico() {
     }
   }
 
+  // Eliminación definitiva. El servidor la rechaza si algún diagnóstico usa la
+  // categoría y sugiere desactivarla; ese mensaje se muestra tal cual.
+  async function handleEliminar(tipo) {
+    try {
+      const eliminado = await confirmar({
+        titulo: 'Eliminar categoría',
+        mensaje: `Se eliminará definitivamente la categoría "${tipo.nombre}". Esta acción no se puede deshacer. Solo se pueden eliminar categorías que ningún diagnóstico usa; en los demás casos, desactívela.`,
+        textoConfirmar: 'Eliminar',
+        textoProcesando: 'Eliminando…',
+        accion: () => eliminarTipoDiagnostico(tipo._id),
+      });
+      if (!eliminado) return;
+      setTipos((anteriores) => anteriores.filter((t) => t._id !== tipo._id));
+      notificar({ tipo: 'exito', mensaje: 'Categoría eliminada' });
+    } catch (err) {
+      notificar({
+        tipo: 'error',
+        mensaje: mensajeDeError(err, 'No fue posible eliminar la categoría'),
+      });
+    }
+  }
+
   async function handleEstado(tipo) {
     try {
       if (tipo.activo) {
@@ -204,7 +225,7 @@ export default function TiposDiagnostico() {
                 error={errorNombre}
                 onChange={(evento) => setNombre(evento.target.value)}
               />
-              <Boton type="submit" disabled={agregando}>
+              <Boton type="submit" disabled={agregando} $cargando={agregando}>
                 {agregando ? 'Agregando…' : 'Agregar'}
               </Boton>
             </FormularioAgregar>
@@ -274,22 +295,24 @@ export default function TiposDiagnostico() {
                           <Acciones>
                             {edicion?.id === tipo._id ? (
                               <>
-                                <BotonEnlace
+                                <BotonAccion
                                   type="button"
                                   onClick={() => handleRenombrar(tipo)}
                                 >
+                                  <Icono nombre="confirmar" />
                                   Guardar
-                                </BotonEnlace>
-                                <BotonEnlace
+                                </BotonAccion>
+                                <BotonAccion
                                   type="button"
                                   onClick={() => setEdicion(null)}
                                 >
+                                  <Icono nombre="cerrar" />
                                   Cancelar
-                                </BotonEnlace>
+                                </BotonAccion>
                               </>
                             ) : (
                               <>
-                                <BotonEnlace
+                                <BotonAccion
                                   type="button"
                                   aria-label={`Renombrar ${tipo.nombre}`}
                                   onClick={() =>
@@ -300,16 +323,31 @@ export default function TiposDiagnostico() {
                                     })
                                   }
                                 >
+                                  <Icono nombre="editar" />
                                   Renombrar
-                                </BotonEnlace>
-                                <BotonEnlace
+                                </BotonAccion>
+                                <BotonAccion
                                   type="button"
                                   $peligro={tipo.activo}
                                   aria-label={`${tipo.activo ? 'Desactivar' : 'Reactivar'} ${tipo.nombre}`}
                                   onClick={() => handleEstado(tipo)}
                                 >
+                                  <Icono
+                                    nombre={
+                                      tipo.activo ? 'desactivar' : 'activar'
+                                    }
+                                  />
                                   {tipo.activo ? 'Desactivar' : 'Reactivar'}
-                                </BotonEnlace>
+                                </BotonAccion>
+                                <BotonAccion
+                                  type="button"
+                                  $peligro
+                                  aria-label={`Eliminar ${tipo.nombre}`}
+                                  onClick={() => handleEliminar(tipo)}
+                                >
+                                  <Icono nombre="eliminar" />
+                                  Eliminar
+                                </BotonAccion>
                               </>
                             )}
                           </Acciones>

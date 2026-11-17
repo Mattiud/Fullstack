@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import {
-  BotonEnlace,
-  BotonPequeno,
+  BotonAccion,
+  BotonIcono,
   CuerpoPanel,
   EncabezadoPanel,
   Entrada,
@@ -11,6 +11,7 @@ import {
   TextoAyuda,
   TituloSeccion,
 } from '../ui';
+import Icono from '../Icono';
 
 // Lista de textos con "+ agregar" y ✕ del mockup 1h (objetivos y actividades). Las
 // actividades se reordenan con ↑ ↓ en lugar de arrastrar, para poder usar el teclado.
@@ -72,13 +73,14 @@ export default function ListaEditable({
       <EncabezadoPanel>
         <TituloSeccion id={`titulo-${id}`}>{titulo} *</TituloSeccion>
         {editable && (
-          <BotonEnlace
+          <BotonAccion
             type="button"
             onClick={agregar}
             disabled={textos.length >= max}
           >
-            + agregar
-          </BotonEnlace>
+            <Icono nombre="agregar" />
+            Agregar
+          </BotonAccion>
         )}
       </EncabezadoPanel>
       <CuerpoPanel>
@@ -111,7 +113,8 @@ export default function ListaEditable({
                   />
                   {editable && ordenable && (
                     <>
-                      <BotonPequeno
+                      <BotonIcono
+                        $pequeno
                         type="button"
                         $variante="secundario"
                         aria-label={`Subir ${nombreElemento.toLowerCase()} ${i + 1}`}
@@ -120,9 +123,10 @@ export default function ListaEditable({
                           onOperacion({ tipo: 'mover', indice: i, delta: -1 })
                         }
                       >
-                        ↑
-                      </BotonPequeno>
-                      <BotonPequeno
+                        <Icono nombre="subir" />
+                      </BotonIcono>
+                      <BotonIcono
+                        $pequeno
                         type="button"
                         $variante="secundario"
                         aria-label={`Bajar ${nombreElemento.toLowerCase()} ${i + 1}`}
@@ -131,19 +135,20 @@ export default function ListaEditable({
                           onOperacion({ tipo: 'mover', indice: i, delta: 1 })
                         }
                       >
-                        ↓
-                      </BotonPequeno>
+                        <Icono nombre="bajar" />
+                      </BotonIcono>
                     </>
                   )}
                   {editable && (
-                    <BotonPequeno
+                    <BotonIcono
+                      $pequeno
                       type="button"
-                      $variante="secundario"
+                      $variante="peligro"
                       aria-label={`Quitar ${nombreElemento.toLowerCase()} ${i + 1}`}
                       onClick={() => onOperacion({ tipo: 'quitar', indice: i })}
                     >
-                      ✕
-                    </BotonPequeno>
+                      <Icono nombre="cerrar" />
+                    </BotonIcono>
                   )}
                 </Fila>
               ))}

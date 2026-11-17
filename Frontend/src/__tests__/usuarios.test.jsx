@@ -104,7 +104,7 @@ describe('Usuarios y roles (administrador)', () => {
       screen.queryByRole('region', { name: 'Nuevo usuario' })
     ).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: '+ Nuevo usuario' }));
+    await user.click(screen.getByRole('button', { name: 'Nuevo usuario' }));
     const formulario = within(
       screen.getByRole('region', { name: 'Nuevo usuario' })
     );
@@ -147,7 +147,7 @@ describe('Usuarios y roles (administrador)', () => {
     const user = userEvent.setup();
     await abrirGestion();
 
-    await user.click(screen.getByRole('button', { name: '+ Nuevo usuario' }));
+    await user.click(screen.getByRole('button', { name: 'Nuevo usuario' }));
     const formulario = within(
       screen.getByRole('region', { name: 'Nuevo usuario' })
     );
@@ -194,7 +194,7 @@ describe('Usuarios y roles (administrador)', () => {
     const user = userEvent.setup();
     await abrirGestion();
 
-    await user.click(screen.getByRole('button', { name: '+ Nuevo usuario' }));
+    await user.click(screen.getByRole('button', { name: 'Nuevo usuario' }));
     const formulario = within(
       screen.getByRole('region', { name: 'Nuevo usuario' })
     );

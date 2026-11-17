@@ -29,13 +29,14 @@ import BuscadorMenor from '../components/diagnosticos/BuscadorMenor';
 import { ChipEstadoSesion } from '../components/sesiones/EstadoSesion';
 import {
   Alerta,
-  Boton,
+  BotonEnlazado,
   Chip,
   EncabezadoPanel,
   Panel,
   TextoAyuda,
   TituloSeccion,
 } from '../components/ui';
+import Icono from '../components/Icono';
 
 // Panel de inicio (mockup 1a): indicadores, próximas sesiones, informes del mes y
 // actividad reciente, con datos reales de los módulos existentes. Cada rol ve solo lo
@@ -51,10 +52,6 @@ const Buscador = styled.div`
   @media (max-width: ${({ theme }) => theme.movil}) {
     width: 100%;
   }
-`;
-
-const BotonEnlazado = styled(Boton).attrs({ as: Link })`
-  text-decoration: none;
 `;
 
 const Indicadores = styled.div`
@@ -364,7 +361,10 @@ export default function Inicio() {
           />
         </Buscador>
         {planificaSesiones && (
-          <BotonEnlazado to="/sesiones/nueva">+ Nueva sesión</BotonEnlazado>
+          <BotonEnlazado to="/sesiones/nueva">
+            <Icono nombre="agregar" />
+            Nueva sesión
+          </BotonEnlazado>
         )}
       </EncabezadoPagina>
       <CuerpoPagina>

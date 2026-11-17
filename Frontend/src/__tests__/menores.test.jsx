@@ -99,7 +99,7 @@ describe('Listado de menores', () => {
     expect(within(fila).getByText('Apoderado B')).toBeInTheDocument();
     expect(within(fila).getByText('Inactivo')).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: '+ Nuevo menor' })
+      screen.getByRole('link', { name: 'Nuevo menor' })
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Menores' })).toHaveClass('active');
   });
@@ -110,7 +110,7 @@ describe('Listado de menores', () => {
 
     await screen.findByRole('link', { name: 'Menor Ficticio Uno' });
     expect(
-      screen.queryByRole('link', { name: '+ Nuevo menor' })
+      screen.queryByRole('link', { name: 'Nuevo menor' })
     ).not.toBeInTheDocument();
   });
 

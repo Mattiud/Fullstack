@@ -18,12 +18,13 @@ import {
 import {
   Alerta,
   Boton,
-  BotonPequeno,
+  BotonIcono,
   Cargando,
   ContenedorTabla,
   Tabla,
   TextoAyuda,
 } from '../../components/ui';
+import Icono from '../../components/Icono';
 
 // Agenda de sesiones (T08): las próximas en orden cronológico, las anteriores de la
 // más reciente a la más antigua y los borradores. El backend devuelve solo las de los
@@ -70,6 +71,7 @@ const Pie = styled.div`
 const Paginas = styled.div`
   display: flex;
   gap: 8px;
+  align-items: center;
 `;
 
 const VISTAS = [
@@ -139,7 +141,8 @@ export default function ListadoSesiones() {
       >
         {puedePlanificar && (
           <Boton type="button" onClick={() => navigate('/sesiones/nueva')}>
-            + Nueva sesión
+            <Icono nombre="agregar" />
+            Nueva sesión
           </Boton>
         )}
       </EncabezadoPagina>
@@ -257,7 +260,8 @@ export default function ListadoSesiones() {
                 Mostrando {resultado.sesiones.length} de {resultado.total}
               </span>
               <Paginas>
-                <BotonPequeno
+                <BotonIcono
+                  $pequeno
                   type="button"
                   $variante="secundario"
                   aria-label="Página anterior"
@@ -266,12 +270,13 @@ export default function ListadoSesiones() {
                     setConsulta((a) => ({ ...a, pagina: a.pagina - 1 }))
                   }
                 >
-                  ‹
-                </BotonPequeno>
+                  <Icono nombre="anterior" />
+                </BotonIcono>
                 <span>
                   {consulta.pagina} / {totalPaginas}
                 </span>
-                <BotonPequeno
+                <BotonIcono
+                  $pequeno
                   type="button"
                   $variante="secundario"
                   aria-label="Página siguiente"
@@ -280,8 +285,8 @@ export default function ListadoSesiones() {
                     setConsulta((a) => ({ ...a, pagina: a.pagina + 1 }))
                   }
                 >
-                  ›
-                </BotonPequeno>
+                  <Icono nombre="siguiente" />
+                </BotonIcono>
               </Paginas>
             </Pie>
           </>

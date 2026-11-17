@@ -1,5 +1,6 @@
 import styled from 'styled-components';
-import { BotonPequeno } from './ui';
+import { BotonIcono } from './ui';
+import IconoAccion from './Icono';
 
 // Avisos de éxito, advertencia y error, centrados en la pantalla. No bloquean la
 // página: solo cada aviso recibe clics.
@@ -68,14 +69,15 @@ export default function Notificaciones({ avisos, onCerrar }) {
           <span className="sr-only">{TITULOS[tipo]}:</span>
           <Icono aria-hidden="true">{ESTILOS[tipo].icono}</Icono>
           <Mensaje>{mensaje}</Mensaje>
-          <BotonPequeno
+          <BotonIcono
             type="button"
-            $variante="secundario"
+            $variante="fantasma"
+            $pequeno
             aria-label="Cerrar aviso"
             onClick={() => onCerrar(id)}
           >
-            Cerrar
-          </BotonPequeno>
+            <IconoAccion nombre="cerrar" />
+          </BotonIcono>
         </Aviso>
       ))}
     </Contenedor>

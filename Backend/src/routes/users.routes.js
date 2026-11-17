@@ -8,6 +8,7 @@ const {
   crearUsuario,
   actualizarUsuario,
   asignarPasswordTemporal,
+  eliminarUsuario,
 } = require('../controller/users.controller');
 
 const router = express.Router();
@@ -19,6 +20,7 @@ router.get('/', listarUsuarios);
 router.post('/', crearUsuario);
 router.get('/:id', obtenerUsuario);
 router.patch('/:id', actualizarUsuario);
+router.delete('/:id', eliminarUsuario);
 router.post('/:id/password-temporal', asignarPasswordTemporal);
 
 module.exports = router;

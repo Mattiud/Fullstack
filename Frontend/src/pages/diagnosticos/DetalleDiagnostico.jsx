@@ -23,9 +23,11 @@ import EncabezadoPagina, {
 } from '../../components/EncabezadoPagina';
 import ModalDiagnostico from '../../components/diagnosticos/ModalDiagnostico';
 import TipoDiagnostico from '../../components/diagnosticos/TipoDiagnostico';
+import Icono from '../../components/Icono';
 import {
   Alerta,
   Boton,
+  BotonAccion,
   BotonEnlace,
   Cargando,
   Chip,
@@ -230,7 +232,12 @@ export default function DetalleDiagnostico() {
           </Chip>
         </Chips>
         {puedeEditar && (
-          <Boton type="button" onClick={() => setEditando(true)}>
+          <Boton
+            type="button"
+            $variante="edicion"
+            onClick={() => setEditando(true)}
+          >
+            <Icono nombre="editar" />
             {esBorrador ? 'Continuar borrador' : 'Editar'}
           </Boton>
         )}
@@ -314,15 +321,16 @@ export default function DetalleDiagnostico() {
                             {v.actual && ' (actual)'}
                           </strong>
                         ) : (
-                          <BotonEnlace
+                          <BotonAccion
                             type="button"
                             onClick={() =>
                               verVersion(v.actual ? null : v.version)
                             }
                           >
+                            <Icono nombre="ver" />
                             Ver v{v.version}
                             {v.actual && ' (actual)'}
-                          </BotonEnlace>
+                          </BotonAccion>
                         )}
                         <Detalle>
                           {formatearFecha(v.fecha)}

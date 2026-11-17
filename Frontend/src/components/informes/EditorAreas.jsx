@@ -6,8 +6,15 @@ import {
   LIMITES_INFORME,
 } from '../../constants/informes';
 import CampoFormulario from '../CampoFormulario';
-import { BotonEnlace, BotonPequeno, ErrorCampo, TextoAyuda } from '../ui';
+import {
+  BotonAccion,
+  BotonPequeno,
+  ErrorCampo,
+  GrupoAcciones,
+  TextoAyuda,
+} from '../ui';
 import { apartadoNuevo, areaNueva } from './claves';
+import Icono from '../Icono';
 
 // Análisis cualitativo por áreas numeradas (1., 2., …), cada una con apartados o
 // subáreas identificados por letra (a), b), …). El profesional redacta todo el texto.
@@ -141,32 +148,35 @@ export default function EditorAreas({ areas, onChange, error }) {
           <TarjetaArea key={area.clave} aria-label={`Área ${n}`}>
             <Cabecera>
               <h3>Área {n}</h3>
-              <Acciones>
-                <BotonEnlace
+              <GrupoAcciones>
+                <BotonAccion
                   type="button"
                   aria-label={`Subir área ${n}`}
                   disabled={indice === 0}
                   onClick={() => onChange(intercambiar(areas, indice, -1))}
                 >
-                  ↑ Subir
-                </BotonEnlace>
-                <BotonEnlace
+                  <Icono nombre="subir" />
+                  Subir
+                </BotonAccion>
+                <BotonAccion
                   type="button"
                   aria-label={`Bajar área ${n}`}
                   disabled={indice === areas.length - 1}
                   onClick={() => onChange(intercambiar(areas, indice, 1))}
                 >
-                  ↓ Bajar
-                </BotonEnlace>
-                <BotonEnlace
+                  <Icono nombre="bajar" />
+                  Bajar
+                </BotonAccion>
+                <BotonAccion
                   type="button"
                   $peligro
                   aria-label={`Eliminar área ${n}`}
                   onClick={() => eliminarArea(indice)}
                 >
+                  <Icono nombre="eliminar" />
                   Eliminar área
-                </BotonEnlace>
-              </Acciones>
+                </BotonAccion>
+              </GrupoAcciones>
             </Cabecera>
 
             <CampoFormulario
@@ -189,9 +199,10 @@ export default function EditorAreas({ areas, onChange, error }) {
                     <h4>
                       Apartado {letra}) del área {n}
                     </h4>
-                    <Acciones>
-                      <BotonEnlace
+                    <GrupoAcciones>
+                      <BotonAccion
                         type="button"
+                        $soloIcono
                         aria-label={`Subir apartado ${letra}) del área ${n}`}
                         disabled={j === 0}
                         onClick={() =>
@@ -201,10 +212,11 @@ export default function EditorAreas({ areas, onChange, error }) {
                           }))
                         }
                       >
-                        ↑
-                      </BotonEnlace>
-                      <BotonEnlace
+                        <Icono nombre="subir" />
+                      </BotonAccion>
+                      <BotonAccion
                         type="button"
+                        $soloIcono
                         aria-label={`Bajar apartado ${letra}) del área ${n}`}
                         disabled={j === area.apartados.length - 1}
                         onClick={() =>
@@ -214,17 +226,18 @@ export default function EditorAreas({ areas, onChange, error }) {
                           }))
                         }
                       >
-                        ↓
-                      </BotonEnlace>
-                      <BotonEnlace
+                        <Icono nombre="bajar" />
+                      </BotonAccion>
+                      <BotonAccion
                         type="button"
                         $peligro
                         aria-label={`Eliminar apartado ${letra}) del área ${n}`}
                         onClick={() => eliminarApartado(indice, j)}
                       >
+                        <Icono nombre="eliminar" />
                         Eliminar
-                      </BotonEnlace>
-                    </Acciones>
+                      </BotonAccion>
+                    </GrupoAcciones>
                   </Cabecera>
                   <CampoFormulario
                     etiqueta={`Subtítulo del apartado ${letra}) del área ${n} (opcional)`}
@@ -262,7 +275,8 @@ export default function EditorAreas({ areas, onChange, error }) {
                   }))
                 }
               >
-                + Apartado
+                <Icono nombre="agregar" />
+                Apartado
               </BotonPequeno>
             </Acciones>
           </TarjetaArea>
@@ -277,7 +291,8 @@ export default function EditorAreas({ areas, onChange, error }) {
           disabled={areas.length >= L.areas}
           onClick={() => onChange([...areas, areaNueva()])}
         >
-          + Área
+          <Icono nombre="agregar" />
+          Área
         </BotonPequeno>
         <TextoAyuda>
           Las áreas se numeran (1., 2., …) y los apartados se identifican con

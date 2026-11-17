@@ -61,3 +61,8 @@ export async function actualizarTipoDiagnostico(id, cambios) {
   const { data } = await client.patch(`/tipos-diagnostico/${id}`, cambios);
   return data.tipo;
 }
+
+// Eliminación definitiva (solo categorías que ningún diagnóstico usa).
+export async function eliminarTipoDiagnostico(id) {
+  await client.delete(`/tipos-diagnostico/${id}`);
+}

@@ -14,6 +14,7 @@ import {
   TextoAyuda,
   TituloSeccion,
 } from '../ui';
+import Icono from '../Icono';
 
 const Lista = styled.div`
   display: flex;
@@ -107,7 +108,8 @@ export default function ProfesionalesAsignados({
           Profesionales asignados
         </TituloSeccion>
         {puedeAsignar && !editando && (
-          <BotonPequeno type="button" $variante="secundario" onClick={abrir}>
+          <BotonPequeno type="button" $variante="edicion" onClick={abrir}>
+            <Icono nombre="editar" />
             Modificar
           </BotonPequeno>
         )}
@@ -140,6 +142,7 @@ export default function ProfesionalesAsignados({
                 type="button"
                 onClick={guardar}
                 disabled={guardando}
+                $cargando={guardando}
               >
                 Guardar asignación
               </BotonPequeno>

@@ -265,7 +265,7 @@ describe('Filtros y permisos', () => {
 
     await screen.findByRole('group', { name: 'Mar 17/11' });
     expect(
-      screen.queryByRole('button', { name: '+ Sesión' })
+      screen.queryByRole('button', { name: 'Sesión' })
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Solo mis sesiones' })
@@ -281,7 +281,7 @@ describe('Filtros y permisos', () => {
     const { router } = renderApp(RUTA);
     await screen.findByRole('group', { name: 'Mar 17/11' });
 
-    await user.click(screen.getByRole('button', { name: '+ Sesión' }));
+    await user.click(screen.getByRole('button', { name: 'Sesión' }));
     expect(router.state.location.pathname).toBe('/sesiones/nueva');
   });
 });

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const TipoDiagnostico = require('../models/TipoDiagnostico');
+const Diagnostico = require('../models/Diagnostico');
 const { MAX_NOMBRE, normalizarNombre } = TipoDiagnostico;
 const { AUDIT_ACTIONS } = require('../models/AuditLog');
 const { PERMISSIONS, hasPermission } = require('../config/roles');
@@ -11,6 +12,7 @@ const {
   exigirSinErrores,
   validarTexto,
   validarActivo,
+  escaparRegex,
 } = require('../utils/validators');
 
 const MENSAJE_DUPLICADO = 'Ya existe una categoría con ese nombre';
@@ -93,4 +95,39 @@ async function actualizarTipo(req, res) {
   res.json({ tipo });
 }
 
-module.exports = { listarTipos, crearTipo, actualizarTipo };
+// Eliminación definitiva. Los diagnósticos guardan el nombre del tipo (no una
+// referencia), así que una categoría usada en algún diagnóstico —actual o en una versión
+// anterior— no se elimina: se informa y se sugiere desactivarla.
+async function eliminarTipo(req, res) {
+  const { id } = req.params;
+  const tipo = mongoose.isValidObjectId(id) ? await TipoDiagnostico.findById(id) : null;
+  if (!tipo) throw new HttpError(404, 'Categoría no encontrada');
+
+  const mismoNombre = new RegExp(`^${escaparRegex(tipo.nombre)}$`, 'i');
+  const enUso = await Diagnostico.countDocuments({
+    $or: [
+      { tipo: mismoNombre, tipoPersonalizado: mongoose.trusted({ $ne: true }) },
+      {
+        versiones: mongoose.trusted({
+          $elemMatch: { tipo: mismoNombre, tipoPersonalizado: { $ne: true } },
+        }),
+      },
+    ],
+  });
+  if (enUso > 0) {
+    throw new HttpError(
+      409,
+      `No se puede eliminar «${tipo.nombre}»: se usa en ${enUso} ${
+        enUso === 1 ? 'diagnóstico' : 'diagnósticos'
+      }. Desactívela para dejar de ofrecerla.`,
+      { codigo: 'CATEGORIA_EN_USO' }
+    );
+  }
+
+  await tipo.deleteOne();
+  // El nombre queda en la auditoría porque la categoría ya no existe.
+  await auditar(req, AUDIT_ACTIONS.TIPO_DIAGNOSTICO_ELIMINADO, tipo, { nombre: tipo.nombre });
+  res.status(204).end();
+}
+
+module.exports = { listarTipos, crearTipo, actualizarTipo, eliminarTipo };

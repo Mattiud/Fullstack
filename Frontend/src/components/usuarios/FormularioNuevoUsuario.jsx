@@ -149,7 +149,7 @@ export default function FormularioNuevoUsuario({ onCreado, onCancelar }) {
             <Boton type="button" $variante="secundario" onClick={onCancelar}>
               Cancelar
             </Boton>
-            <Boton type="submit" disabled={enviando}>
+            <Boton type="submit" disabled={enviando} $cargando={enviando}>
               {enviando ? 'Registrando…' : 'Registrar usuario'}
             </Boton>
           </Botones>

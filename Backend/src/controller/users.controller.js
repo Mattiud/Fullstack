@@ -1,6 +1,14 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
-const { AUDIT_ACTIONS } = require('../models/AuditLog');
+const AuditLog = require('../models/AuditLog');
+const Menor = require('../models/Menor');
+const Diagnostico = require('../models/Diagnostico');
+const Sesion = require('../models/Sesion');
+const Documento = require('../models/Documento');
+const Informe = require('../models/Informe');
+const TipoDiagnostico = require('../models/TipoDiagnostico');
+const ConfiguracionInforme = require('../models/ConfiguracionInforme');
+const { AUDIT_ACTIONS } = AuditLog;
 const { ROLES } = require('../config/roles');
 const HttpError = require('../utils/httpError');
 const { registrarAuditoria } = require('../utils/audit');
@@ -150,10 +158,85 @@ async function asignarPasswordTemporal(req, res) {
   res.json({ usuario });
 }
 
+// Información que referencia a una cuenta. Si existe alguna, la cuenta no se elimina
+// (quedarían registros sin autor ni responsable): se informa y se sugiere desactivarla.
+function dependenciasDe(id) {
+  // Condiciones sin operadores: sanitizeFilter las acepta sin marcarlas como confiables.
+  const alguno = (...campos) => ({ $or: campos.map((campo) => ({ [campo]: id })) });
+  return [
+    {
+      etiqueta: 'menores registrados o asignados',
+      modelo: Menor,
+      filtro: alguno('creadoPor', 'actualizadoPor', 'profesionalesAsignados'),
+    },
+    {
+      etiqueta: 'diagnósticos',
+      modelo: Diagnostico,
+      filtro: alguno('creadoPor', 'actualizadoPor', 'versiones.registradoPor'),
+    },
+    {
+      etiqueta: 'sesiones',
+      modelo: Sesion,
+      filtro: alguno('profesional', 'creadoPor', 'actualizadoPor'),
+    },
+    { etiqueta: 'documentos', modelo: Documento, filtro: alguno('subidoPor') },
+    {
+      etiqueta: 'informes',
+      modelo: Informe,
+      filtro: alguno('creadoPor', 'actualizadoPor', 'pdfs.generadoPor'),
+    },
+    { etiqueta: 'categorías de diagnóstico', modelo: TipoDiagnostico, filtro: alguno('creadoPor') },
+    {
+      etiqueta: 'configuración de informes',
+      modelo: ConfiguracionInforme,
+      filtro: alguno('actualizadoPor'),
+    },
+    {
+      etiqueta: 'otras cuentas creadas o modificadas',
+      modelo: User,
+      filtro: alguno('creadoPor', 'actualizadoPor'),
+    },
+    // Su propia actividad (inicios de sesión, cambios, consultas) es parte de la trazabilidad.
+    { etiqueta: 'registros de actividad', modelo: AuditLog, filtro: alguno('usuario') },
+  ];
+}
+
+// Eliminación definitiva, solo para cuentas sin información asociada (por ejemplo, una
+// creada por error que nunca se usó). En los demás casos se debe desactivar.
+async function eliminarUsuario(req, res) {
+  const usuario = await buscarUsuario(req.params.id);
+  if (usuario._id.equals(req.user._id)) {
+    throw new HttpError(400, 'No puede eliminar su propia cuenta');
+  }
+
+  const asociadas = [];
+  for (const { etiqueta, modelo, filtro } of dependenciasDe(usuario._id)) {
+    if (await modelo.exists(filtro)) asociadas.push(etiqueta);
+  }
+  if (asociadas.length > 0) {
+    throw new HttpError(
+      409,
+      `No se puede eliminar la cuenta de ${usuario.nombre} porque tiene información asociada (${asociadas.join(', ')}). Desactívela para impedir su acceso sin perder la trazabilidad.`,
+      { codigo: 'USUARIO_CON_DEPENDENCIAS', detalles: { dependencias: asociadas } }
+    );
+  }
+
+  await usuario.deleteOne();
+  // Los datos de la cuenta quedan en la auditoría porque la cuenta ya no existe.
+  await registrarAuditoria(req, {
+    accion: AUDIT_ACTIONS.USUARIO_ELIMINADO,
+    recurso: 'usuario',
+    recursoId: usuario._id,
+    detalle: { nombre: usuario.nombre, email: usuario.email, rol: usuario.rol },
+  });
+  res.status(204).end();
+}
+
 module.exports = {
   listarUsuarios,
   obtenerUsuario,
   crearUsuario,
   actualizarUsuario,
   asignarPasswordTemporal,
+  eliminarUsuario,
 };

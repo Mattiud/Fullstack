@@ -19,13 +19,15 @@ import TipoDiagnostico from '../../components/diagnosticos/TipoDiagnostico';
 import {
   Alerta,
   Boton,
-  BotonPequeno,
+  BotonFiltro,
+  BotonIcono,
   Cargando,
   Chip,
   ContenedorTabla,
   Tabla,
   TextoAyuda,
 } from '../../components/ui';
+import Icono from '../../components/Icono';
 
 // Listado general de diagnósticos. El backend devuelve solo los de los menores a los
 // que el usuario tiene acceso.
@@ -34,22 +36,6 @@ const Filtros = styled.div`
   display: flex;
   gap: 9px;
   flex-wrap: wrap;
-`;
-
-const Filtro = styled.button`
-  border: 1.5px solid
-    ${({ theme, $activo }) => ($activo ? theme.colores.primario : '#8c8c8c')};
-  border-radius: 999px;
-  padding: 2px 10px;
-  font-size: 13.5px;
-  background: ${({ theme }) => theme.colores.superficie};
-  color: ${({ $activo }) => ($activo ? '#222222' : '#555555')};
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colores.primario};
-    outline-offset: 2px;
-  }
 `;
 
 const EnlaceMenor = styled(Link)`
@@ -74,6 +60,7 @@ const Pie = styled.div`
 const Paginas = styled.div`
   display: flex;
   gap: 8px;
+  align-items: center;
 `;
 
 const FILTROS = [
@@ -125,14 +112,15 @@ export default function ListadoDiagnosticos() {
       >
         {tienePermiso(PERMISOS.DIAGNOSTICOS_EDITAR) && (
           <Boton type="button" onClick={() => setRegistrando(true)}>
-            + Nuevo diagnóstico
+            <Icono nombre="agregar" />
+            Nuevo diagnóstico
           </Boton>
         )}
       </EncabezadoPagina>
       <CuerpoPagina>
         <Filtros role="group" aria-label="Filtrar por estado">
           {FILTROS.map(({ valor, etiqueta }) => (
-            <Filtro
+            <BotonFiltro
               key={valor}
               type="button"
               $activo={consulta.estado === valor}
@@ -140,7 +128,7 @@ export default function ListadoDiagnosticos() {
               onClick={() => setConsulta({ estado: valor, pagina: 1 })}
             >
               {etiqueta}
-            </Filtro>
+            </BotonFiltro>
           ))}
         </Filtros>
 
@@ -212,7 +200,8 @@ export default function ListadoDiagnosticos() {
                 Mostrando {resultado.diagnosticos.length} de {resultado.total}
               </span>
               <Paginas>
-                <BotonPequeno
+                <BotonIcono
+                  $pequeno
                   type="button"
                   $variante="secundario"
                   aria-label="Página anterior"
@@ -221,12 +210,13 @@ export default function ListadoDiagnosticos() {
                     setConsulta((a) => ({ ...a, pagina: a.pagina - 1 }))
                   }
                 >
-                  ‹
-                </BotonPequeno>
+                  <Icono nombre="anterior" />
+                </BotonIcono>
                 <span>
                   {consulta.pagina} / {totalPaginas}
                 </span>
-                <BotonPequeno
+                <BotonIcono
+                  $pequeno
                   type="button"
                   $variante="secundario"
                   aria-label="Página siguiente"
@@ -235,8 +225,8 @@ export default function ListadoDiagnosticos() {
                     setConsulta((a) => ({ ...a, pagina: a.pagina + 1 }))
                   }
                 >
-                  ›
-                </BotonPequeno>
+                  <Icono nombre="siguiente" />
+                </BotonIcono>
               </Paginas>
             </Pie>
           </>

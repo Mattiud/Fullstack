@@ -121,7 +121,7 @@ export default function CambiarPassword() {
               onChange={handleChange}
               error={errores.confirmacion}
             />
-            <Boton type="submit" disabled={enviando}>
+            <Boton type="submit" disabled={enviando} $cargando={enviando}>
               {enviando ? 'Guardando…' : 'Guardar contraseña'}
             </Boton>
           </Formulario>

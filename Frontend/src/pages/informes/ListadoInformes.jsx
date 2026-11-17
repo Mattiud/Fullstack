@@ -10,21 +10,18 @@ import EncabezadoPagina, {
 } from '../../components/EncabezadoPagina';
 import {
   Alerta,
-  Boton,
-  BotonPequeno,
+  BotonEnlazado,
+  BotonIcono,
   Cargando,
   Chip,
   ContenedorTabla,
   Tabla,
   TextoAyuda,
 } from '../../components/ui';
+import Icono from '../../components/Icono';
 
 // Listado general de informes psicopedagógicos. El backend devuelve solo los de los
 // menores a los que el profesional tiene acceso, sin el contenido de los informes.
-
-const BotonEnlazado = styled(Boton).attrs({ as: Link })`
-  text-decoration: none;
-`;
 
 const EnlaceMenor = styled(Link)`
   font-weight: 700;
@@ -42,6 +39,7 @@ const Pie = styled.div`
 const Paginas = styled.div`
   display: flex;
   gap: 8px;
+  align-items: center;
 `;
 
 export default function ListadoInformes() {
@@ -82,7 +80,10 @@ export default function ListadoInformes() {
           </>
         }
       >
-        <BotonEnlazado to="/informes/nuevo">+ Nuevo informe</BotonEnlazado>
+        <BotonEnlazado to="/informes/nuevo">
+          <Icono nombre="agregar" />
+          Nuevo informe
+        </BotonEnlazado>
       </EncabezadoPagina>
       <CuerpoPagina>
         {error && <Alerta role="alert">{error}</Alerta>}
@@ -142,27 +143,29 @@ export default function ListadoInformes() {
                 Mostrando {resultado.informes.length} de {resultado.total}
               </span>
               <Paginas>
-                <BotonPequeno
+                <BotonIcono
+                  $pequeno
                   type="button"
                   $variante="secundario"
                   aria-label="Página anterior"
                   disabled={pagina <= 1}
                   onClick={() => setPagina((p) => p - 1)}
                 >
-                  ‹
-                </BotonPequeno>
+                  <Icono nombre="anterior" />
+                </BotonIcono>
                 <span>
                   {pagina} / {totalPaginas}
                 </span>
-                <BotonPequeno
+                <BotonIcono
+                  $pequeno
                   type="button"
                   $variante="secundario"
                   aria-label="Página siguiente"
                   disabled={pagina >= totalPaginas}
                   onClick={() => setPagina((p) => p + 1)}
                 >
-                  ›
-                </BotonPequeno>
+                  <Icono nombre="siguiente" />
+                </BotonIcono>
               </Paginas>
             </Pie>
           </>

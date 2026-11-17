@@ -52,6 +52,7 @@ import {
   TextoAyuda,
   TituloSeccion,
 } from '../../components/ui';
+import Icono from '../../components/Icono';
 
 // pdf.js solo se descarga cuando se abre la vista previa en PDF.
 const VisorPdf = lazy(() => import('../../components/documentos/VisorPdf'));
@@ -473,16 +474,19 @@ export default function ConfiguracionInformes() {
       <EncabezadoPagina titulo="Configuración de informes">
         <Boton
           type="button"
-          $variante="secundario"
+          $variante="informativo"
           onClick={handleVistaPdf}
           disabled={!cargado || vistaPdf?.cargando}
+          $cargando={vistaPdf?.cargando}
         >
+          <Icono nombre="ver" />
           {vistaPdf?.cargando ? 'Generando…' : 'Vista previa PDF'}
         </Boton>
         <Boton
           type="button"
           onClick={handleGuardar}
           disabled={!cargado || !hayCambios || guardando}
+          $cargando={guardando}
         >
           {guardando ? 'Guardando…' : 'Guardar cambios'}
         </Boton>
@@ -531,7 +535,9 @@ export default function ConfiguracionInformes() {
                             type="button"
                             onClick={handleSubirLogo}
                             disabled={subiendo}
+                            $cargando={subiendo}
                           >
+                            <Icono nombre="subirArchivo" />
                             {subiendo
                               ? `Guardando… ${progreso}%`
                               : 'Guardar logo'}
@@ -574,6 +580,7 @@ export default function ConfiguracionInformes() {
                                 $variante="peligro"
                                 onClick={handleEliminarLogo}
                               >
+                                <Icono nombre="eliminar" />
                                 Eliminar logo
                               </BotonPequeno>
                             </Botones>

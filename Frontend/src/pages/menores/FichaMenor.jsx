@@ -24,6 +24,7 @@ import EncabezadoPagina, {
 import DocumentosMenor from '../../components/documentos/DocumentosMenor';
 import ProfesionalesAsignados from '../../components/menores/ProfesionalesAsignados';
 import HistorialMenor from '../../components/menores/HistorialMenor';
+import Icono from '../../components/Icono';
 import DiagnosticosMenor from '../../components/diagnosticos/DiagnosticosMenor';
 import DiagnosticoVigente from '../../components/diagnosticos/DiagnosticoVigente';
 import { listarDiagnosticosMenor } from '../../api/diagnosticos';
@@ -34,10 +35,12 @@ import { listarInformesMenor } from '../../api/informes';
 import {
   Alerta,
   Boton,
+  BotonEnlazado,
   Cargando,
   Chip,
   CuerpoPanel,
   EncabezadoPanel,
+  estadosInteractivos,
   Panel,
   TituloSeccion,
 } from '../../components/ui';
@@ -92,10 +95,6 @@ const Acciones = styled.div`
   flex-wrap: wrap;
 `;
 
-const BotonEnlazado = styled(Boton).attrs({ as: Link })`
-  text-decoration: none;
-`;
-
 const Pestanas = styled.div`
   padding: 0 20px;
   border-bottom: 2px solid ${({ theme }) => theme.colores.primario};
@@ -112,11 +111,17 @@ const Pestana = styled.button`
   background: none;
   color: ${({ $activa }) => ($activa ? 'inherit' : '#666666')};
   font-weight: ${({ $activa }) => ($activa ? 700 : 400)};
-  cursor: pointer;
   white-space: nowrap;
+  ${estadosInteractivos}
+
+  &:hover {
+    color: ${({ theme }) => theme.colores.texto};
+    border-bottom-color: ${({ theme, $activa }) =>
+      $activa ? theme.colores.primario : theme.colores.bordeTarjeta};
+  }
 
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colores.primario};
+    outline-offset: -2px;
   }
 `;
 
@@ -329,8 +334,9 @@ export default function FichaMenor() {
           <Acciones>
             <BotonEnlazado
               to={`/menores/${menor._id}/editar`}
-              $variante="secundario"
+              $variante="edicion"
             >
+              <Icono nombre="editar" />
               Editar ficha
             </BotonEnlazado>
             <Boton
@@ -338,6 +344,7 @@ export default function FichaMenor() {
               $variante={menor.activo ? 'peligro' : 'secundario'}
               onClick={handleEstado}
             >
+              <Icono nombre={menor.activo ? 'desactivar' : 'activar'} />
               {menor.activo ? 'Desactivar' : 'Reactivar'}
             </Boton>
           </Acciones>

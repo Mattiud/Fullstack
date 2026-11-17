@@ -117,9 +117,10 @@ export default function ModalConfirmacion({
           </Boton>
           <Boton
             type="button"
-            $variante={peligro ? 'peligro' : 'primario'}
+            $variante={peligro ? 'destructivo' : 'primario'}
             onClick={onConfirmar}
             disabled={procesando}
+            $cargando={procesando}
           >
             {procesando ? textoProcesando : textoConfirmar}
           </Boton>

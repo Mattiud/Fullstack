@@ -21,6 +21,7 @@ import {
   Tabla,
   TextoAyuda,
 } from '../../components/ui';
+import Icono from '../../components/Icono';
 
 // Pantalla 1k de los mockups: listado de cuentas, matriz de permisos y registro de accesos.
 
@@ -95,6 +96,13 @@ export default function Usuarios() {
     setVersionRegistro((version) => version + 1);
   }
 
+  function handleEliminado(id) {
+    setUsuarios((anteriores) =>
+      anteriores.filter((existente) => existente._id !== id)
+    );
+    setVersionRegistro((version) => version + 1);
+  }
+
   const visibles = usuarios.filter((usuario) => coincide(usuario, busqueda));
 
   return (
@@ -112,7 +120,8 @@ export default function Usuarios() {
           onClick={() => setCreando(true)}
           aria-expanded={creando}
         >
-          + Nuevo usuario
+          <Icono nombre="agregar" />
+          Nuevo usuario
         </Boton>
       </EncabezadoPagina>
       <CuerpoPagina>
@@ -147,6 +156,7 @@ export default function Usuarios() {
                     usuario={usuario}
                     esPropio={usuario._id === usuarioActual._id}
                     onActualizado={handleActualizado}
+                    onEliminado={handleEliminado}
                   />
                 ))}
               </tbody>

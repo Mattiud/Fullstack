@@ -10,8 +10,9 @@ import EncabezadoPagina, {
 } from '../../components/EncabezadoPagina';
 import {
   Alerta,
-  Boton,
-  BotonPequeno,
+  BotonEnlazado,
+  BotonFiltro,
+  BotonIcono,
   Cargando,
   Chip,
   ContenedorTabla,
@@ -19,6 +20,7 @@ import {
   Tabla,
   TextoAyuda,
 } from '../../components/ui';
+import Icono from '../../components/Icono';
 
 // Pantalla 1e de los mockups. Las columnas de diagnóstico, sesión e informe se
 // agregarán con sus módulos.
@@ -32,22 +34,6 @@ const Filtros = styled.div`
   display: flex;
   gap: 9px;
   flex-wrap: wrap;
-`;
-
-const Filtro = styled.button`
-  border: 1.5px solid
-    ${({ theme, $activo }) => ($activo ? theme.colores.primario : '#8c8c8c')};
-  border-radius: 999px;
-  padding: 2px 10px;
-  font-size: 13.5px;
-  background: ${({ theme }) => theme.colores.superficie};
-  color: ${({ $activo }) => ($activo ? '#222222' : '#555555')};
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colores.primario};
-    outline-offset: 2px;
-  }
 `;
 
 const EnlaceMenor = styled(Link)`
@@ -66,10 +52,7 @@ const Pie = styled.div`
 const Paginas = styled.div`
   display: flex;
   gap: 8px;
-`;
-
-const BotonNuevo = styled(Boton).attrs({ as: Link })`
-  text-decoration: none;
+  align-items: center;
 `;
 
 const FILTROS = [
@@ -142,13 +125,16 @@ export default function ListadoMenores() {
           onChange={(evento) => setBusqueda(evento.target.value)}
         />
         {tienePermiso(PERMISOS.EXPEDIENTES_ESCRIBIR) && (
-          <BotonNuevo to="/menores/nuevo">+ Nuevo menor</BotonNuevo>
+          <BotonEnlazado to="/menores/nuevo">
+            <Icono nombre="agregar" />
+            Nuevo menor
+          </BotonEnlazado>
         )}
       </EncabezadoPagina>
       <CuerpoPagina>
         <Filtros role="group" aria-label="Filtrar por estado">
           {FILTROS.map(({ valor, etiqueta }) => (
-            <Filtro
+            <BotonFiltro
               key={valor}
               type="button"
               $activo={consulta.estado === valor}
@@ -162,7 +148,7 @@ export default function ListadoMenores() {
               }
             >
               {etiqueta}
-            </Filtro>
+            </BotonFiltro>
           ))}
         </Filtros>
 
@@ -212,7 +198,8 @@ export default function ListadoMenores() {
                 Mostrando {resultado.menores.length} de {resultado.total}
               </span>
               <Paginas>
-                <BotonPequeno
+                <BotonIcono
+                  $pequeno
                   type="button"
                   $variante="secundario"
                   aria-label="Página anterior"
@@ -221,12 +208,13 @@ export default function ListadoMenores() {
                     setConsulta((a) => ({ ...a, pagina: a.pagina - 1 }))
                   }
                 >
-                  ‹
-                </BotonPequeno>
+                  <Icono nombre="anterior" />
+                </BotonIcono>
                 <span>
                   {consulta.pagina} / {totalPaginas}
                 </span>
-                <BotonPequeno
+                <BotonIcono
+                  $pequeno
                   type="button"
                   $variante="secundario"
                   aria-label="Página siguiente"
@@ -235,8 +223,8 @@ export default function ListadoMenores() {
                     setConsulta((a) => ({ ...a, pagina: a.pagina + 1 }))
                   }
                 >
-                  ›
-                </BotonPequeno>
+                  <Icono nombre="siguiente" />
+                </BotonIcono>
               </Paginas>
             </Pie>
           </>

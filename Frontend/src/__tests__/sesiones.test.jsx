@@ -184,7 +184,7 @@ describe('Listado de sesiones', () => {
 
     await screen.findByRole('heading', { name: 'Sesiones (1)' });
     expect(
-      screen.queryByRole('button', { name: '+ Nueva sesión' })
+      screen.queryByRole('button', { name: 'Nueva sesión' })
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Solo mis sesiones' })
@@ -213,9 +213,10 @@ describe('Sesiones en la ficha del menor', () => {
     await user.click(await screen.findByRole('tab', { name: 'Sesiones (1)' }));
     const fila = screen.getByText('Sesión 1').closest('tr');
     expect(within(fila).getByText('15/01/2099')).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: '+ Nueva sesión' })
-    ).toHaveAttribute('href', '/sesiones/nueva?menor=menor-1');
+    expect(screen.getByRole('link', { name: 'Nueva sesión' })).toHaveAttribute(
+      'href',
+      '/sesiones/nueva?menor=menor-1'
+    );
   });
 });
 
@@ -268,12 +269,12 @@ describe('Registro de una planificación', () => {
     });
     const objetivos = region(/Objetivos de la sesión/);
     await user.click(
-      within(objetivos).getByRole('button', { name: '+ agregar' })
+      within(objetivos).getByRole('button', { name: 'Agregar' })
     );
     await user.type(screen.getByLabelText('Objetivo 1'), 'Objetivo ficticio');
     const actividades = region(/Actividades planificadas/);
     await user.click(
-      within(actividades).getByRole('button', { name: '+ agregar' })
+      within(actividades).getByRole('button', { name: 'Agregar' })
     );
     await user.type(screen.getByLabelText('Actividad 1'), 'Actividad ficticia');
     await user.click(screen.getByRole('button', { name: 'Guardar sesión' }));
@@ -430,7 +431,7 @@ describe('Detalle y registro post-sesión', () => {
       screen.queryByRole('button', { name: /Guardar/ })
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: '+ agregar' })
+      screen.queryByRole('button', { name: 'Agregar' })
     ).not.toBeInTheDocument();
   });
 

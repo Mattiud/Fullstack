@@ -28,6 +28,7 @@ import {
   Alerta,
   Boton,
   BotonEnlace,
+  BotonFiltro,
   BotonPequeno,
   Campo,
   Entrada,
@@ -52,23 +53,6 @@ const Areas = styled.div`
   gap: 8px;
   flex-wrap: wrap;
   align-items: center;
-`;
-
-const ChipArea = styled.button`
-  border: 1.5px solid
-    ${({ theme, $activo }) => ($activo ? theme.colores.primario : '#8c8c8c')};
-  border-radius: 999px;
-  padding: 2px 10px;
-  font-size: 13.5px;
-  background: ${({ theme, $activo }) =>
-    $activo ? theme.colores.lateralActivo : theme.colores.superficie};
-  color: ${({ $activo }) => ($activo ? '#222222' : '#555555')};
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colores.primario};
-    outline-offset: 2px;
-  }
 `;
 
 const OtraArea = styled.div`
@@ -495,7 +479,7 @@ export default function ModalDiagnostico({
             {areasMostradas.map((area) => {
               const activa = incluyeArea(valores.areasAfectadas, area);
               return (
-                <ChipArea
+                <BotonFiltro
                   key={area}
                   type="button"
                   $activo={activa}
@@ -506,17 +490,17 @@ export default function ModalDiagnostico({
                   onClick={() => alternarArea(area)}
                 >
                   {area}
-                </ChipArea>
+                </BotonFiltro>
               );
             })}
             {otraArea === null ? (
-              <ChipArea
+              <BotonFiltro
                 type="button"
                 disabled={valores.areasAfectadas.length >= LIMITES.areas}
                 onClick={() => setOtraArea('')}
               >
                 + otra
-              </ChipArea>
+              </BotonFiltro>
             ) : (
               <OtraArea>
                 <Entrada
@@ -578,7 +562,7 @@ export default function ModalDiagnostico({
               Guardar borrador
             </Boton>
           )}
-          <Boton type="submit" disabled={enviando}>
+          <Boton type="submit" disabled={enviando} $cargando={enviando}>
             {enviando ? 'Guardando…' : 'Guardar diagnóstico'}
           </Boton>
         </Botones>

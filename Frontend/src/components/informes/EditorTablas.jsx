@@ -3,11 +3,12 @@ import { useNotificaciones } from '../../context/useNotificaciones';
 import { COLUMNAS_REFERENCIA, LIMITES_INFORME } from '../../constants/informes';
 import CampoFormulario from '../CampoFormulario';
 import {
-  BotonEnlace,
+  BotonAccion,
   BotonPequeno,
   ContenedorTabla,
   Entrada,
   ErrorCampo,
+  GrupoAcciones,
   TextoAyuda,
 } from '../ui';
 import { tablaNueva } from './claves';
@@ -16,6 +17,7 @@ import {
   esColumnaEntera,
   porcentajeCalculado,
 } from '../../utils/porcentajeLogro';
+import Icono from '../Icono';
 
 // Tablas de resultados cuantitativos con columnas y filas definidas por el profesional.
 // Las celdas son texto libre: el sistema no calcula totales ni porcentajes.
@@ -79,25 +81,6 @@ const CeldaEncabezado = styled.div`
 
   input {
     font-weight: 700;
-  }
-`;
-
-const BotonQuitar = styled.button`
-  border: none;
-  background: none;
-  color: ${({ theme }) => theme.colores.error};
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
-  padding: 4px;
-
-  &:disabled {
-    color: ${({ theme }) => theme.colores.deshabilitado};
-    cursor: not-allowed;
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colores.primario};
   }
 `;
 
@@ -189,32 +172,35 @@ export default function EditorTablas({ tablas, onChange, error }) {
           <TarjetaTabla key={tabla.clave} aria-label={`Tabla ${n}`}>
             <Cabecera>
               <h3>Tabla {n}</h3>
-              <Acciones>
-                <BotonEnlace
+              <GrupoAcciones>
+                <BotonAccion
                   type="button"
                   aria-label={`Subir tabla ${n}`}
                   disabled={indice === 0}
                   onClick={() => mover(indice, -1)}
                 >
-                  ↑ Subir
-                </BotonEnlace>
-                <BotonEnlace
+                  <Icono nombre="subir" />
+                  Subir
+                </BotonAccion>
+                <BotonAccion
                   type="button"
                   aria-label={`Bajar tabla ${n}`}
                   disabled={indice === tablas.length - 1}
                   onClick={() => mover(indice, 1)}
                 >
-                  ↓ Bajar
-                </BotonEnlace>
-                <BotonEnlace
+                  <Icono nombre="bajar" />
+                  Bajar
+                </BotonAccion>
+                <BotonAccion
                   type="button"
                   $peligro
                   aria-label={`Eliminar tabla ${n}`}
                   onClick={() => eliminarTabla(indice)}
                 >
+                  <Icono nombre="eliminar" />
                   Eliminar tabla
-                </BotonEnlace>
-              </Acciones>
+                </BotonAccion>
+              </GrupoAcciones>
             </Cabecera>
 
             <CampoFormulario
@@ -260,14 +246,16 @@ export default function EditorTablas({ tablas, onChange, error }) {
                               }))
                             }
                           />
-                          <BotonQuitar
+                          <BotonAccion
                             type="button"
+                            $peligro
+                            $soloIcono
                             aria-label={`Eliminar columna ${c + 1} de la tabla ${n}`}
                             disabled={tabla.columnas.length === 1}
                             onClick={() => eliminarColumna(indice, c)}
                           >
-                            ×
-                          </BotonQuitar>
+                            <Icono nombre="cerrar" />
+                          </BotonAccion>
                         </CeldaEncabezado>
                       </th>
                     ))}
@@ -328,13 +316,15 @@ export default function EditorTablas({ tablas, onChange, error }) {
                         );
                       })}
                       <td>
-                        <BotonQuitar
+                        <BotonAccion
                           type="button"
+                          $peligro
+                          $soloIcono
                           aria-label={`Eliminar fila ${f + 1} de la tabla ${n}`}
                           onClick={() => eliminarFila(indice, f)}
                         >
-                          ×
-                        </BotonQuitar>
+                          <Icono nombre="cerrar" />
+                        </BotonAccion>
                       </td>
                     </tr>
                   ))}
@@ -355,7 +345,8 @@ export default function EditorTablas({ tablas, onChange, error }) {
                   }))
                 }
               >
-                + Fila
+                <Icono nombre="agregar" />
+                Fila
               </BotonPequeno>
               <BotonPequeno
                 type="button"
@@ -370,7 +361,8 @@ export default function EditorTablas({ tablas, onChange, error }) {
                   }))
                 }
               >
-                + Columna
+                <Icono nombre="agregar" />
+                Columna
               </BotonPequeno>
               <TextoAyuda>
                 {tabla.filas.length} fila{tabla.filas.length === 1 ? '' : 's'} ·{' '}
@@ -391,7 +383,8 @@ export default function EditorTablas({ tablas, onChange, error }) {
           disabled={tablas.length >= L.tablas}
           onClick={() => onChange([...tablas, tablaNueva()])}
         >
-          + Tabla vacía
+          <Icono nombre="agregar" />
+          Tabla vacía
         </BotonPequeno>
         <BotonPequeno
           type="button"
@@ -399,7 +392,8 @@ export default function EditorTablas({ tablas, onChange, error }) {
           disabled={tablas.length >= L.tablas}
           onClick={() => onChange([...tablas, tablaNueva(COLUMNAS_REFERENCIA)])}
         >
-          + Tabla con columnas de referencia
+          <Icono nombre="agregar" />
+          Tabla con columnas de referencia
         </BotonPequeno>
       </Acciones>
       <TextoAyuda>

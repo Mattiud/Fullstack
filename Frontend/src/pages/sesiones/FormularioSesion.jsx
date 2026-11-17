@@ -630,6 +630,7 @@ export default function FormularioSesion() {
               <Boton
                 type="button"
                 disabled={enviando}
+                $cargando={enviando}
                 onClick={() => guardar(ESTADOS_SESION.PLANIFICADA)}
               >
                 {enviando

@@ -19,6 +19,7 @@ import {
   TextoAyuda,
   TituloSeccion,
 } from '../ui';
+import Icono from '../Icono';
 
 const Autor = styled.span`
   display: block;
@@ -41,7 +42,8 @@ export default function DiagnosticosMenor({
         <TituloSeccion id="titulo-diagnosticos">Diagnósticos</TituloSeccion>
         {puedeEditar && (
           <Boton type="button" onClick={() => setRegistrando(true)}>
-            + Nuevo diagnóstico
+            <Icono nombre="agregar" />
+            Nuevo diagnóstico
           </Boton>
         )}
       </EncabezadoPanel>

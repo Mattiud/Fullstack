@@ -26,10 +26,12 @@ import VistaMes from '../../components/sesiones/calendario/VistaMes';
 import {
   Alerta,
   Boton,
+  BotonIcono,
   BotonPequeno,
   Cargando,
   TextoAyuda,
 } from '../../components/ui';
+import Icono from '../../components/Icono';
 
 // Calendario de sesiones (mockup 1i). Muestra las sesiones guardadas en el módulo de
 // planificación; el backend devuelve solo las de los menores a los que se tiene
@@ -166,22 +168,25 @@ export default function CalendarioSesiones() {
       <EncabezadoPagina titulo="Calendario">
         {puedePlanificar && (
           <Boton type="button" onClick={() => navigate('/sesiones/nueva')}>
-            + Sesión
+            <Icono nombre="agregar" />
+            Sesión
           </Boton>
         )}
       </EncabezadoPagina>
       <CuerpoPagina>
         <Barra>
-          <BotonPequeno
+          <BotonIcono
+            $pequeno
             type="button"
             $variante="secundario"
             aria-label={vista === 'semana' ? 'Semana anterior' : 'Mes anterior'}
             onClick={() => mover(-1)}
           >
-            ‹
-          </BotonPequeno>
+            <Icono nombre="anterior" />
+          </BotonIcono>
           <Periodo aria-live="polite">{titulo}</Periodo>
-          <BotonPequeno
+          <BotonIcono
+            $pequeno
             type="button"
             $variante="secundario"
             aria-label={
@@ -189,8 +194,8 @@ export default function CalendarioSesiones() {
             }
             onClick={() => mover(1)}
           >
-            ›
-          </BotonPequeno>
+            <Icono nombre="siguiente" />
+          </BotonIcono>
           <Boton
             type="button"
             $variante="secundario"
@@ -254,6 +259,7 @@ export default function CalendarioSesiones() {
               $variante="secundario"
               onClick={() => setIntento((i) => i + 1)}
             >
+              <Icono nombre="recargar" />
               Reintentar
             </BotonPequeno>
           </Alerta>

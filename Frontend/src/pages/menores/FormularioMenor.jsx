@@ -422,7 +422,7 @@ export default function FormularioMenor() {
             >
               Cancelar
             </Boton>
-            <Boton type="submit" disabled={enviando}>
+            <Boton type="submit" disabled={enviando} $cargando={enviando}>
               {enviando
                 ? 'Guardando…'
                 : esEdicion

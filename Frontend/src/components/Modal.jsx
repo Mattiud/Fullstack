@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef } from 'react';
 import styled from 'styled-components';
+import { BotonIcono } from './ui';
+import Icono from './Icono';
 
 // Ventana modal con formulario (por ejemplo, el registro de diagnóstico del mockup 1g).
 // El foco queda dentro del cuadro y Escape equivale a cerrar. Se dibuja bajo las
@@ -38,18 +40,6 @@ const Cabecera = styled.div`
   h2 {
     margin: 0;
     font-size: 19px;
-  }
-`;
-
-const Cerrar = styled.button`
-  border: none;
-  background: none;
-  color: #777777;
-  font-size: 18px;
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colores.primario};
   }
 `;
 
@@ -124,9 +114,14 @@ export default function Modal({
       >
         <Cabecera>
           <h2 id={`${id}-titulo`}>{titulo}</h2>
-          <Cerrar type="button" aria-label="Cerrar" onClick={onCerrar}>
-            ✕
-          </Cerrar>
+          <BotonIcono
+            type="button"
+            $variante="fantasma"
+            aria-label="Cerrar"
+            onClick={onCerrar}
+          >
+            <Icono nombre="cerrar" />
+          </BotonIcono>
         </Cabecera>
         <Contenido>{children}</Contenido>
         {pie && <Pie>{pie}</Pie>}

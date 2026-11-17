@@ -173,9 +173,10 @@ describe('Acceso', () => {
 
     await user.click(await screen.findByRole('tab', { name: 'Informes (1)' }));
     expect(screen.getByText('PDF v1')).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: '+ Nuevo informe' })
-    ).toHaveAttribute('href', '/informes/nuevo?menor=menor-1');
+    expect(screen.getByRole('link', { name: 'Nuevo informe' })).toHaveAttribute(
+      'href',
+      '/informes/nuevo?menor=menor-1'
+    );
   });
 
   test('el administrador no ve los informes ni puede abrirlos', async () => {
@@ -356,7 +357,7 @@ describe('Tablas de resultados cuantitativos', () => {
     );
     await irASeccion(user, 'Resultados cuantitativos');
     await user.click(
-      screen.getByRole('button', { name: '+ Tabla con columnas de referencia' })
+      screen.getByRole('button', { name: 'Tabla con columnas de referencia' })
     );
     const tabla = screen.getByRole('region', { name: 'Tabla 1' });
     expect(
@@ -433,7 +434,7 @@ describe('Tablas de resultados cuantitativos', () => {
     );
     await irASeccion(user, 'Resultados cuantitativos');
     await user.click(
-      screen.getByRole('button', { name: '+ Tabla con columnas de referencia' })
+      screen.getByRole('button', { name: 'Tabla con columnas de referencia' })
     );
     const tabla = screen.getByRole('region', { name: 'Tabla 1' });
     const total = within(tabla).getByLabelText(
@@ -504,7 +505,7 @@ describe('Análisis cualitativo por áreas', () => {
     const user = await abrirInforme(informeFicticio({ areasCualitativas: [] }));
     await irASeccion(user, 'Análisis cualitativo');
 
-    await user.click(screen.getByRole('button', { name: '+ Área' }));
+    await user.click(screen.getByRole('button', { name: 'Área' }));
     await user.type(screen.getByLabelText('Nombre del área 1 *'), 'Lenguaje');
     await user.type(
       screen.getByLabelText('Subtítulo del apartado a) del área 1 (opcional)'),
@@ -522,7 +523,7 @@ describe('Análisis cualitativo por áreas', () => {
       'Segundo apartado.'
     );
 
-    await user.click(screen.getByRole('button', { name: '+ Área' }));
+    await user.click(screen.getByRole('button', { name: 'Área' }));
     await user.type(screen.getByLabelText('Nombre del área 2 *'), 'Matemática');
     await user.type(
       screen.getByLabelText('Texto del apartado a) del área 2 *'),

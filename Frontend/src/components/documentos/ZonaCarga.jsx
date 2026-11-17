@@ -2,6 +2,7 @@ import { useId, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { formatearTamano } from '../../utils/formato';
 import { BotonPequeno, TextoAyuda } from '../ui';
+import Icono from '../Icono';
 
 const Zona = styled.div`
   border: 1.5px dashed
@@ -66,6 +67,7 @@ export default function ZonaCarga({
             $variante="secundario"
             onClick={() => entradaRef.current?.click()}
           >
+            <Icono nombre="subirArchivo" />
             Seleccionar archivo
           </BotonPequeno>
         </>

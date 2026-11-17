@@ -203,7 +203,7 @@ describe('Panel de inicio del psicopedagogo', () => {
 
     const { user, router } = iniciar(usuarioPsico);
     expect(
-      await screen.findByRole('link', { name: '+ Nueva sesión' })
+      await screen.findByRole('link', { name: 'Nueva sesión' })
     ).toHaveAttribute('href', '/sesiones/nueva');
 
     await user.type(
@@ -287,7 +287,7 @@ describe('Panel de inicio del administrador', () => {
       screen.queryByRole('region', { name: 'Informes del mes' })
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('link', { name: '+ Nueva sesión' })
+      screen.queryByRole('link', { name: 'Nueva sesión' })
     ).not.toBeInTheDocument();
     expect(informesApi.listarInformes).not.toHaveBeenCalled();
 

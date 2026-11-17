@@ -15,6 +15,11 @@ export async function actualizarUsuario(id, cambios) {
   return data.usuario;
 }
 
+// Eliminación definitiva (solo cuentas sin información asociada).
+export async function eliminarUsuario(id) {
+  await client.delete(`/users/${id}`);
+}
+
 export async function asignarPasswordTemporal(id, password) {
   const { data } = await client.post(`/users/${id}/password-temporal`, {
     password,

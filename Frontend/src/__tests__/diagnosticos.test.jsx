@@ -181,7 +181,7 @@ describe('Listado de diagnósticos', () => {
 
     await screen.findByRole('heading', { name: 'Diagnósticos (1)' });
     expect(
-      screen.queryByRole('button', { name: '+ Nuevo diagnóstico' })
+      screen.queryByRole('button', { name: 'Nuevo diagnóstico' })
     ).not.toBeInTheDocument();
   });
 
@@ -197,7 +197,7 @@ describe('Listado de diagnósticos', () => {
     renderApp('/diagnosticos');
 
     await user.click(
-      await screen.findByRole('button', { name: '+ Nuevo diagnóstico' })
+      await screen.findByRole('button', { name: 'Nuevo diagnóstico' })
     );
     const modal = screen.getByRole('dialog', { name: 'Nuevo diagnóstico' });
     await elegirTipo(user, modal, 'Categoría ficticia');
@@ -278,7 +278,7 @@ describe('Diagnósticos en la ficha del menor', () => {
     renderApp('/menores/menor-1?pestana=diagnosticos');
 
     await user.click(
-      await screen.findByRole('button', { name: '+ Nuevo diagnóstico' })
+      await screen.findByRole('button', { name: 'Nuevo diagnóstico' })
     );
     const modal = screen.getByRole('dialog', {
       name: 'Nuevo diagnóstico — Menor Ficticio Uno',
@@ -310,7 +310,7 @@ describe('Diagnósticos en la ficha del menor', () => {
     renderApp('/menores/menor-1?pestana=diagnosticos');
 
     await user.click(
-      await screen.findByRole('button', { name: '+ Nuevo diagnóstico' })
+      await screen.findByRole('button', { name: 'Nuevo diagnóstico' })
     );
     const modal = screen.getByRole('dialog');
     await elegirTipo(user, modal, 'Categoría ficticia');
@@ -366,7 +366,7 @@ describe('Diagnósticos en la ficha del menor', () => {
     renderApp('/menores/menor-1?pestana=diagnosticos');
 
     await user.click(
-      await screen.findByRole('button', { name: '+ Nuevo diagnóstico' })
+      await screen.findByRole('button', { name: 'Nuevo diagnóstico' })
     );
     const modal = screen.getByRole('dialog');
     await elegirTipo(user, modal, 'Categoría ficticia');
@@ -397,7 +397,7 @@ describe('Diagnósticos en la ficha del menor', () => {
     renderApp('/menores/menor-1?pestana=diagnosticos');
 
     await user.click(
-      await screen.findByRole('button', { name: '+ Nuevo diagnóstico' })
+      await screen.findByRole('button', { name: 'Nuevo diagnóstico' })
     );
     const modal = screen.getByRole('dialog');
     await elegirTipo(user, modal, 'Categoría ficticia');
@@ -436,7 +436,7 @@ describe('Diagnósticos en la ficha del menor', () => {
 
     expect(await screen.findByText('Tipo ficticio actual')).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: '+ Nuevo diagnóstico' })
+      screen.queryByRole('button', { name: 'Nuevo diagnóstico' })
     ).not.toBeInTheDocument();
   });
 });
@@ -447,7 +447,7 @@ describe('Tipo de diagnóstico en el formulario', () => {
     const user = userEvent.setup();
     renderApp('/menores/menor-1?pestana=diagnosticos');
     await user.click(
-      await screen.findByRole('button', { name: '+ Nuevo diagnóstico' })
+      await screen.findByRole('button', { name: 'Nuevo diagnóstico' })
     );
     return { user, modal: screen.getByRole('dialog') };
   }
@@ -557,7 +557,7 @@ describe('Búsqueda del menor al registrar desde el listado', () => {
     const user = userEvent.setup();
     renderApp('/diagnosticos');
     await user.click(
-      await screen.findByRole('button', { name: '+ Nuevo diagnóstico' })
+      await screen.findByRole('button', { name: 'Nuevo diagnóstico' })
     );
     const modal = screen.getByRole('dialog');
     return {

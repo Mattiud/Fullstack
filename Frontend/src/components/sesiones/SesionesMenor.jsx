@@ -4,7 +4,7 @@ import { horario, resumenObjetivos } from '../../constants/sesiones';
 import { formatearDia } from '../../utils/formato';
 import { ChipAsistencia, ChipEstadoSesion } from './EstadoSesion';
 import {
-  Boton,
+  BotonEnlazado,
   ContenedorTabla,
   CuerpoPanel,
   EncabezadoPanel,
@@ -13,10 +13,7 @@ import {
   TextoAyuda,
   TituloSeccion,
 } from '../ui';
-
-const BotonEnlazado = styled(Boton).attrs({ as: Link })`
-  text-decoration: none;
-`;
+import Icono from '../Icono';
 
 const Chips = styled.div`
   display: flex;
@@ -33,7 +30,8 @@ export default function SesionesMenor({ menor, sesiones, puedeEditar }) {
         <TituloSeccion id="titulo-sesiones">Sesiones</TituloSeccion>
         {puedeEditar && (
           <BotonEnlazado to={`/sesiones/nueva?menor=${menor._id}`}>
-            + Nueva sesión
+            <Icono nombre="agregar" />
+            Nueva sesión
           </BotonEnlazado>
         )}
       </EncabezadoPanel>

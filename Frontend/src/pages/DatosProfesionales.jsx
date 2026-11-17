@@ -151,7 +151,11 @@ export default function DatosProfesionales() {
                 {lineaProfesional(usuario.nombre, valores)}
               </VistaPie>
             </div>
-            <Boton type="submit" disabled={enviando || !hayCambios}>
+            <Boton
+              type="submit"
+              disabled={enviando || !hayCambios}
+              $cargando={enviando}
+            >
               {enviando ? 'Guardando…' : 'Guardar'}
             </Boton>
           </Formulario>

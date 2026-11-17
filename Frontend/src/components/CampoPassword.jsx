@@ -1,6 +1,12 @@
 import { useId, useState } from 'react';
 import styled from 'styled-components';
-import { Campo, Entrada, ErrorCampo, Etiqueta } from './ui';
+import {
+  Campo,
+  Entrada,
+  ErrorCampo,
+  Etiqueta,
+  estadosInteractivos,
+} from './ui';
 
 const Contenedor = styled.div`
   position: relative;
@@ -27,10 +33,16 @@ const BotonVisibilidad = styled.button`
   background: none;
   color: ${({ theme, $visible }) =>
     $visible ? theme.colores.primario : theme.colores.textoSuave};
-  cursor: pointer;
+  ${estadosInteractivos}
+
+  /* Sin fondo al pasar el cursor: solo se oscurece el ícono. */
+  &:hover {
+    color: ${({ theme, $visible }) =>
+      $visible ? theme.colores.primarioOscuro : theme.colores.texto};
+  }
 
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colores.primario};
+    outline-offset: -2px;
   }
 `;
 

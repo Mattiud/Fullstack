@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
 import { estadoInforme } from '../../constants/informes';
 import { formatearDia, formatearFecha } from '../../utils/formato';
 import {
-  Boton,
+  BotonEnlazado,
   Chip,
   ContenedorTabla,
   CuerpoPanel,
@@ -13,10 +12,7 @@ import {
   TextoAyuda,
   TituloSeccion,
 } from '../ui';
-
-const BotonEnlazado = styled(Boton).attrs({ as: Link })`
-  text-decoration: none;
-`;
+import Icono from '../Icono';
 
 // Pestaña «Informes» de la ficha del menor (solo para quien emite informes).
 export default function InformesMenor({ menor, informes }) {
@@ -25,7 +21,8 @@ export default function InformesMenor({ menor, informes }) {
       <EncabezadoPanel>
         <TituloSeccion id="titulo-informes">Informes</TituloSeccion>
         <BotonEnlazado to={`/informes/nuevo?menor=${menor._id}`}>
-          + Nuevo informe
+          <Icono nombre="agregar" />
+          Nuevo informe
         </BotonEnlazado>
       </EncabezadoPanel>
       <CuerpoPanel>

@@ -196,6 +196,8 @@ export function describirAuditoria(registro, usuariosPorId = new Map()) {
       if (detalle.activo === false) return `desactivó la cuenta de ${afectado}`;
       if (detalle.activo === true) return `activó la cuenta de ${afectado}`;
       return `actualizó la cuenta de ${afectado}`;
+    case 'USUARIO_ELIMINADO':
+      return `eliminó la cuenta de ${detalle.nombre ?? afectado}`;
     case 'PASSWORD_TEMPORAL_ASIGNADA':
       return `asignó una contraseña temporal a ${afectado}`;
     case 'MENOR_CONSULTADO':
@@ -218,6 +220,10 @@ export function describirAuditoria(registro, usuariosPorId = new Map()) {
         : `visualizó el PDF de un informe (versión ${detalle.version})`;
     case 'TIPO_DIAGNOSTICO_CREADO':
       return 'agregó una categoría de tipo de diagnóstico';
+    case 'TIPO_DIAGNOSTICO_ELIMINADO':
+      return detalle.nombre
+        ? `eliminó la categoría de tipo de diagnóstico «${detalle.nombre}»`
+        : 'eliminó una categoría de tipo de diagnóstico';
     case 'TIPO_DIAGNOSTICO_ACTUALIZADO':
       if (detalle.campos?.includes('nombre'))
         return 'renombró una categoría de tipo de diagnóstico';

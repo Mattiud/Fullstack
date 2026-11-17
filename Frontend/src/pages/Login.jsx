@@ -109,7 +109,8 @@ const AyudaLogin = styled(TextoAyuda).attrs({ as: 'p' })`
 `;
 
 const BotonIngresar = styled(Boton)`
-  padding: 11px;
+  min-height: 46px;
+  padding: 10px 16px;
   font-size: 17px;
 `;
 
@@ -222,7 +223,11 @@ export default function Login() {
             <AyudaLogin>
               Si olvidó su contraseña, contacte al administrador.
             </AyudaLogin>
-            <BotonIngresar type="submit" disabled={enviando}>
+            <BotonIngresar
+              type="submit"
+              disabled={enviando}
+              $cargando={enviando}
+            >
               {enviando ? 'Ingresando…' : 'Ingresar'}
             </BotonIngresar>
             {errorGeneral && (

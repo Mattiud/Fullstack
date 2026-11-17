@@ -11,13 +11,15 @@ import { formatearFecha, formatearTamano } from '../../utils/formato';
 import { validarArchivoLocal } from '../../utils/documentos';
 import ZonaCarga from './ZonaCarga';
 import VisorDocumento from './VisorDocumento';
+import Icono from '../Icono';
 import {
-  BotonEnlace,
+  BotonAccion,
   BotonPequeno,
   Chip,
   ContenedorTabla,
   CuerpoPanel,
   EncabezadoPanel,
+  GrupoAcciones,
   Panel,
   Tabla,
   TextoAyuda,
@@ -35,7 +37,6 @@ const Acciones = styled.div`
   align-items: center;
   flex-wrap: wrap;
   white-space: nowrap;
-  color: #777777;
 `;
 
 const Fondo = styled.div`
@@ -94,12 +95,19 @@ function VisorAmpliado({ menorId, documento, onDescargar, onCerrar }) {
           <Acciones>
             <BotonPequeno
               type="button"
-              $variante="secundario"
+              $variante="informativo"
               onClick={onDescargar}
             >
+              <Icono nombre="descargar" />
               Descargar
             </BotonPequeno>
-            <BotonPequeno ref={cerrarRef} type="button" onClick={onCerrar}>
+            <BotonPequeno
+              ref={cerrarRef}
+              type="button"
+              $variante="secundario"
+              onClick={onCerrar}
+            >
+              <Icono nombre="cerrar" />
               Cerrar
             </BotonPequeno>
           </Acciones>
@@ -229,36 +237,37 @@ export default function DocumentosMenor({
                           </TextoAyuda>
                         </td>
                         <td>
-                          <Acciones>
-                            <BotonEnlace
+                          <GrupoAcciones>
+                            <BotonAccion
                               type="button"
                               aria-label={`Ver ${documento.nombreOriginal}`}
                               onClick={() => setSeleccionado(documento)}
                             >
+                              <Icono nombre="ver" />
                               Ver
-                            </BotonEnlace>
-                            <span aria-hidden="true">·</span>
-                            <BotonEnlace
+                            </BotonAccion>
+                            <BotonAccion
                               type="button"
                               aria-label={`Descargar ${documento.nombreOriginal}`}
                               onClick={() => handleDescargar(documento)}
                             >
+                              <Icono nombre="descargar" />
                               Descargar
-                            </BotonEnlace>
+                            </BotonAccion>
                             {puedeEditar && (
                               <>
-                                <span aria-hidden="true">·</span>
-                                <BotonEnlace
+                                <BotonAccion
                                   type="button"
                                   $peligro
                                   aria-label={`Eliminar ${documento.nombreOriginal}`}
                                   onClick={() => handleEliminar(documento)}
                                 >
+                                  <Icono nombre="eliminar" />
                                   Eliminar
-                                </BotonEnlace>
+                                </BotonAccion>
                               </>
                             )}
-                          </Acciones>
+                          </GrupoAcciones>
                         </td>
                       </tr>
                     ))}
@@ -285,19 +294,26 @@ export default function DocumentosMenor({
             <Acciones>
               <BotonPequeno
                 type="button"
-                $variante="secundario"
+                $variante="informativo"
                 onClick={() => setAmpliado(true)}
               >
+                <Icono nombre="ampliar" />
                 Ampliar
               </BotonPequeno>
               <BotonPequeno
                 type="button"
-                $variante="secundario"
+                $variante="informativo"
                 onClick={() => handleDescargar(seleccionado)}
               >
+                <Icono nombre="descargar" />
                 Descargar
               </BotonPequeno>
-              <BotonPequeno type="button" onClick={() => setSeleccionado(null)}>
+              <BotonPequeno
+                type="button"
+                $variante="secundario"
+                onClick={() => setSeleccionado(null)}
+              >
+                <Icono nombre="cerrar" />
                 Cerrar
               </BotonPequeno>
             </Acciones>

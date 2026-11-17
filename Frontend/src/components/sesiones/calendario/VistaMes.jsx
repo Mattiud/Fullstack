@@ -60,7 +60,10 @@ const Numero = styled.span`
         : theme.colores.texto};
 `;
 
+// Más compacto que BotonEnlace para no agrandar la celda del día.
 const Mas = styled(BotonEnlace)`
+  min-height: 22px;
+  padding: 1px 3px;
   font-size: 12.5px;
   justify-self: start;
 `;

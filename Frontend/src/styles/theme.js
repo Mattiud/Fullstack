@@ -3,6 +3,16 @@ export const theme = {
   colores: {
     primario: '#b8496f',
     primarioOscuro: '#9e3b60',
+    // Botones (components/ui.js): tonos de hover y presionado de cada variante.
+    primarioPresionado: '#86324f',
+    lateralPresionado: '#f2cddc',
+    bordeBoton: '#dccbd2',
+    edicionFondo: '#fbe9f0',
+    edicionHover: '#f6d8e4',
+    informativoFondo: '#f3f0f1',
+    informativoHover: '#e8e2e5',
+    errorOscuro: '#8a2828',
+    errorPresionado: '#f6e0e0',
     enlace: '#a13c63',
     fondo: '#ffffff',
     lateral: '#fdf1f5',
@@ -25,6 +35,16 @@ export const theme = {
     deshabilitado: '#8a8a8a',
   },
   radio: '5px',
+  radioBoton: '8px',
+  // Sombra de los botones sólidos (reposo y hover) y anillo de foco.
+  sombraBoton:
+    '0 1px 2px rgba(110, 30, 60, 0.16), 0 2px 6px rgba(184, 73, 111, 0.18)',
+  sombraBotonHover:
+    '0 2px 4px rgba(110, 30, 60, 0.18), 0 6px 14px rgba(184, 73, 111, 0.26)',
+  sombraBotonPeligro:
+    '0 1px 2px rgba(120, 30, 30, 0.18), 0 2px 6px rgba(163, 51, 51, 0.2)',
+  sombraSuave: '0 1px 2px rgba(43, 35, 40, 0.06)',
+  anilloFoco: '0 0 0 3px rgba(184, 73, 111, 0.32)',
   sombra: '0 1px 3px rgba(0, 0, 0, 0.06)',
   fuente: "-apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif",
   movil: '768px',

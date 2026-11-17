@@ -1,28 +1,31 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import { actualizarUsuario, asignarPasswordTemporal } from '../../api/users';
+import {
+  actualizarUsuario,
+  asignarPasswordTemporal,
+  eliminarUsuario,
+} from '../../api/users';
 import { mensajeDeError } from '../../api/client';
 import { NOMBRES_ROLES } from '../../constants/auth';
 import { useNotificaciones } from '../../context/useNotificaciones';
 import { formatearFecha } from '../../utils/formato';
 import { validarNombre, validarPassword } from '../../utils/validacion';
 import {
-  BotonEnlace,
+  BotonAccion,
   BotonPequeno,
   Campo,
   Chip,
   Entrada,
   ErrorCampo,
   Etiqueta,
+  GrupoAcciones,
   Selector,
   TextoAyuda,
 } from '../ui';
+import Icono from '../Icono';
 
-const Acciones = styled.div`
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  color: #777777;
+const Acciones = styled(GrupoAcciones)`
+  flex-wrap: nowrap;
   white-space: nowrap;
 `;
 
@@ -49,7 +52,12 @@ const Botones = styled.div`
   gap: 8px;
 `;
 
-export default function FilaUsuario({ usuario, esPropio, onActualizado }) {
+export default function FilaUsuario({
+  usuario,
+  esPropio,
+  onActualizado,
+  onEliminado,
+}) {
   const { notificar, confirmar } = useNotificaciones();
   const [editando, setEditando] = useState(false);
   const [valores, setValores] = useState({
@@ -116,6 +124,31 @@ export default function FilaUsuario({ usuario, esPropio, onActualizado }) {
     }
   }
 
+  // Eliminación definitiva. El servidor la rechaza si la cuenta tiene información
+  // asociada y explica qué hacer (desactivarla); ese mensaje se muestra tal cual.
+  async function handleEliminar() {
+    try {
+      const eliminado = await confirmar({
+        titulo: 'Eliminar cuenta',
+        mensaje: `Se eliminará definitivamente la cuenta de ${usuario.nombre} (${usuario.email}). Esta acción no se puede deshacer. Solo se pueden eliminar cuentas sin información asociada; en los demás casos, desactívela.`,
+        textoConfirmar: 'Eliminar',
+        textoProcesando: 'Eliminando…',
+        accion: () => eliminarUsuario(usuario._id),
+      });
+      if (!eliminado) return;
+      onEliminado(usuario._id);
+      notificar({
+        tipo: 'exito',
+        mensaje: `Se eliminó la cuenta de ${usuario.nombre}.`,
+      });
+    } catch (err) {
+      notificar({
+        tipo: 'error',
+        mensaje: mensajeDeError(err, 'No fue posible eliminar la cuenta'),
+      });
+    }
+  }
+
   async function handleGuardarEdicion(evento) {
     evento.preventDefault();
     const errorNombre = validarNombre(valores.nombre);
@@ -167,29 +200,40 @@ export default function FilaUsuario({ usuario, esPropio, onActualizado }) {
         <td>{formatearFecha(usuario.ultimoAcceso)}</td>
         <td>
           <Acciones>
-            <BotonEnlace
+            <BotonAccion
               type="button"
               onClick={editando ? () => setEditando(false) : abrirEdicion}
               aria-expanded={editando}
               aria-label={`Editar a ${usuario.nombre}`}
               disabled={guardando}
             >
+              <Icono nombre="editar" />
               Editar
-            </BotonEnlace>
+            </BotonAccion>
             {esPropio ? (
               <TextoAyuda>(su cuenta)</TextoAyuda>
             ) : (
               <>
-                <span aria-hidden="true">·</span>
-                <BotonEnlace
+                <BotonAccion
                   type="button"
                   $peligro={usuario.activo}
                   onClick={handleEstado}
                   disabled={guardando}
                   aria-label={`${usuario.activo ? 'Desactivar' : 'Activar'} a ${usuario.nombre}`}
                 >
+                  <Icono nombre={usuario.activo ? 'desactivar' : 'activar'} />
                   {usuario.activo ? 'Desactivar' : 'Activar'}
-                </BotonEnlace>
+                </BotonAccion>
+                <BotonAccion
+                  type="button"
+                  $peligro
+                  onClick={handleEliminar}
+                  disabled={guardando}
+                  aria-label={`Eliminar a ${usuario.nombre}`}
+                >
+                  <Icono nombre="eliminar" />
+                  Eliminar
+                </BotonAccion>
               </>
             )}
           </Acciones>

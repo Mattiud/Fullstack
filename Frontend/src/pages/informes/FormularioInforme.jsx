@@ -51,15 +51,18 @@ import { conClaves, sinClaves } from '../../components/informes/claves';
 import {
   Alerta,
   Boton,
-  BotonEnlace,
+  BotonAccion,
   Cargando,
   Chip,
   CuerpoPanel,
   EncabezadoPanel,
+  estadosInteractivos,
+  GrupoAcciones,
   Panel,
   TextoAyuda,
   TituloSeccion,
 } from '../../components/ui';
+import Icono from '../../components/Icono';
 
 // pdf.js solo se descarga cuando se abre un PDF.
 const VisorPdf = lazy(() => import('../../components/documentos/VisorPdf'));
@@ -129,15 +132,19 @@ const OpcionIndice = styled.button`
     $activa ? theme.colores.lateralActivo : 'transparent'};
   font-weight: ${({ $activa }) => ($activa ? 700 : 400)};
   color: inherit;
-  cursor: pointer;
   font-size: 14px;
+  ${estadosInteractivos}
 
   &:hover {
-    background: ${({ theme }) => theme.colores.lateral};
+    background: ${({ theme, $activa }) =>
+      $activa ? theme.colores.lateralActivo : theme.colores.lateral};
+  }
+
+  &:active {
+    background: ${({ theme }) => theme.colores.lateralPresionado};
   }
 
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colores.primario};
     outline-offset: -2px;
   }
 
@@ -218,10 +225,7 @@ const ListaVersiones = styled.ul`
   }
 `;
 
-const AccionesVersion = styled.div`
-  display: flex;
-  gap: 14px;
-`;
+const AccionesVersion = styled(GrupoAcciones)``;
 
 const Aviso = styled.p`
   margin: 0;
@@ -908,7 +912,7 @@ export default function FormularioInforme() {
                       {formatearTamano(pdf.tamano)}
                     </TextoAyuda>
                     <AccionesVersion>
-                      <BotonEnlace
+                      <BotonAccion
                         type="button"
                         aria-label={`Ver versión ${pdf.version}`}
                         onClick={() =>
@@ -921,15 +925,17 @@ export default function FormularioInforme() {
                           )
                         }
                       >
+                        <Icono nombre="ver" />
                         Ver
-                      </BotonEnlace>
-                      <BotonEnlace
+                      </BotonAccion>
+                      <BotonAccion
                         type="button"
                         aria-label={`Descargar versión ${pdf.version}`}
                         onClick={() => handleDescargar(pdf.version)}
                       >
+                        <Icono nombre="descargar" />
                         Descargar
-                      </BotonEnlace>
+                      </BotonAccion>
                     </AccionesVersion>
                   </li>
                 ))}
@@ -971,14 +977,16 @@ export default function FormularioInforme() {
             $variante="secundario"
             onClick={() => navigate(rutaVolver)}
           >
+            <Icono nombre="volver" />
             Volver
           </Boton>
           <Boton
             type="button"
-            $variante="secundario"
+            $variante="informativo"
             disabled={deshabilitado}
             onClick={handleVistaPrevia}
           >
+            <Icono nombre="ver" />
             Vista previa
           </Boton>
           <Boton
@@ -986,6 +994,7 @@ export default function FormularioInforme() {
             $variante="secundario"
             disabled={deshabilitado}
             onClick={handleGuardar}
+            $cargando={enviando}
           >
             {enviando ? 'Guardando…' : 'Guardar avance'}
           </Boton>
@@ -995,6 +1004,7 @@ export default function FormularioInforme() {
               disabled={deshabilitado}
               onClick={handleGenerarPdf}
             >
+              <Icono nombre="pdf" />
               Generar PDF
             </Boton>
           )}
@@ -1082,7 +1092,8 @@ export default function FormularioInforme() {
                       $variante="secundario"
                       onClick={() => irA(anterior.id)}
                     >
-                      ‹ Anterior: {anterior.titulo}
+                      <Icono nombre="anterior" />
+                      Anterior: {anterior.titulo}
                     </Boton>
                   ) : (
                     <span />
@@ -1093,7 +1104,8 @@ export default function FormularioInforme() {
                       $variante="secundario"
                       onClick={() => irA(siguiente.id)}
                     >
-                      Siguiente: {siguiente.titulo} ›
+                      Siguiente: {siguiente.titulo}
+                      <Icono nombre="siguiente" />
                     </Boton>
                   )}
                 </NavegacionPasos>
